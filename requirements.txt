@@ -1,0 +1,28 @@
+# 本地环境依赖。Kaggle Notebook 已预装 torch/torchvision，只需额外装少数包。
+# 版本策略：先写最低版本，11/8 主矩阵跑完后由地基组锁死精确版本并更新本文件。
+
+# --- 深度学习 ---
+torch>=2.2
+torchvision>=0.17
+
+# --- 数据与指标 ---
+numpy>=1.26
+pandas>=2.2
+scikit-learn>=1.4
+Pillow>=10.0
+opencv-python-headless>=4.9
+
+# --- 配置与日志 ---
+PyYAML>=6.0
+tqdm>=4.66
+
+# --- 可视化 ---
+matplotlib>=3.8
+seaborn>=0.13
+
+# --- 可解释性（用到才装，需在 NOTICE.md 登记）---
+# lime>=0.2.0.1
+# grad-cam>=1.5.0
+
+# --- demo ---
+# gradio>=4.0

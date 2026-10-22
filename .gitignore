@@ -1,0 +1,39 @@
+# ---- 数据：绝不进 Git（0.9 GB 原图 + 预处理产物）----
+/data/*
+!/data/README.md
+
+# ---- 模型权重 / 缓存 ----
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.h5
+*.npz
+*.npy
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+
+# ---- Notebook ----
+.ipynb_checkpoints/
+
+# ---- 压缩包 / 日志 ----
+*.zip
+*.tar.gz
+*.log
+wandb/
+
+# ---- 系统 ----
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---- 注意 ----
+# results/runs/**/metrics.json 与 results/figures/** 要进 Git（体积小，是交付物），
+# 不要在这里忽略它们。

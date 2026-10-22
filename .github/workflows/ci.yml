@@ -1,0 +1,25 @@
+name: ci
+
+# 只做两件事：语法能编译、契约测试通过。
+# 故意不装 torch：保证 8 个新手也不会因为环境问题被 CI 卡住。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Compile all python files
+        run: python -m compileall -q src analysis tests
+
+      - name: Contract tests
+        run: python -m unittest discover -s tests -v

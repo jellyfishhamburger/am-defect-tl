@@ -1,0 +1,34 @@
+# 配置模板：复制成 configs/<model>.yaml 后改 model 字段即可。
+# owner：谁负责该模型谁维护这个文件；改共享字段（input_size / freeze / head）要先在地基组 PR 里改。
+
+model: "<vgg16|vgg19|resnet50|resnet101|inception_resnet_v2|xception|mobilenet_v2|efficientnet_b0|efficientnet_b7|efficientnet_v2m|nasnet_large>"
+pretrained: imagenet
+freeze: all_conv            # 论文设定：冻结全部卷积层，只训新分类头
+
+# 论文同款 head（Keras: AveragePooling2D(4,4) -> Flatten -> Dense -> Dropout(0.5) -> Dense(softmax)）
+head:
+  pooling: [4, 4]
+  dense_units: 256          # 论文未给出该值 —— 我们的选择，需写进 README/报告 limitations
+  dropout: 0.5
+
+dataset: "D1"               # D1 | D2 | D2p
+split_file: "splits/D1.csv"
+input_size: 224
+num_classes: 2
+
+optimizer: adam             # adam | sgd | rmsprop
+lr: 0.001
+batch_size: 8               # 论文 Study One = 8；Study Two = 50（显存不足改 32 + 梯度累积）
+epochs: 30                  # 论文 Study One = 30；Study Two = 50
+weight_decay: 0.0
+momentum: 0.9               # 仅 sgd 有效
+
+early_stopping:
+  enabled: false            # 论文未使用；若启用必须写进报告
+  patience: 5
+
+seed: 42
+num_workers: 2
+amp: true                   # 混合精度，Kaggle T4 可开
+
+output_dir: "results/runs"
