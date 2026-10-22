@@ -202,6 +202,7 @@ subprocess.run(f"git clone https://x-access-token:{tok}@github.com/Zheyi-D/am-de
 | 现象 | 原因 | 解决 |
 |---|---|---|
 | `git push` 报 `Failed to connect to 127.0.0.1:7897` | 你的 git 全局配了代理，但 Clash/V2Ray 没开 | 开代理，或对本仓库执行 `git config --local --unset http.proxy` 和 `--unset https.proxy` |
+| 反过来：**想让本仓库走代理** | 2026-10-23 建仓时已把本仓库设为"不走代理"（因为当时代理没开） | `git config --local --unset http.proxy`；`git config --local --unset https.proxy` |
 | `gh` 能连但 `git` 不能 | 两者代理/凭据路径不同 | 用 GitHub Desktop，或按上一条处理代理 |
 | GitHub 邀请点不开 | 7 天过期 | 组长重新 Add people |
 | Kaggle 没有 GPU 选项 | 没做手机验证 | Settings → Phone Verification |
