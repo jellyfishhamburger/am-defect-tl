@@ -15,7 +15,7 @@
 | 4 | 任务看板（7 个 Issue + 8 个标签） | ✅ **已建好** | Issues #1–#7，按组分好标签 |
 | 5 | 加 7 个组员为 Collaborator | ⬜ **待办** | 需要收集 7 人的 GitHub 用户名 |
 | 6 | `main` 分支保护 | ⚠️ **受限** | GitHub Free 私有仓不支持，见 §1.2 三个解法 |
-| 7 | Kaggle 私有 Dataset `am-defect-v1` | ⬜ **待办** | 需要你的 Kaggle 账号，见 §2 |
+| 7 | Kaggle 私有 Dataset `am-defect-v1` | ✅ **已上传并验证** | 854.6 MB，计数 136/135/947/2070 全对；剩"加 7 人协作者"需网页手点，见 §2.2 |
 | 8 | Word Online 报告文档 | ⬜ **待办** | 见 §3 |
 | 9 | 飞书群 + 置顶 + 看板 | ⬜ **待办** | 见 §4 |
 
@@ -72,51 +72,59 @@ GitHub **Free 计划不支持私有仓的分支保护 / rulesets**（会返回 4
 
 > 免费额度：约 **30 GPU 小时/周/账号**（T4×2 或 P100）。8 个账号 ≈ 240 小时/周，我们整个项目只要 8–12 小时。
 
-### 2.2 你（组长）创建私有 Dataset
+### 2.2 私有 Dataset（✅ 2026-10-23 已建成并验证）
 
-**方式一：网页拖拽（最简单，适合 <1 GB）**
+| 项 | 值 |
+|---|---|
+| 地址 | <https://www.kaggle.com/datasets/kennethdeng/am-defect-v1> |
+| 类型 | Private · 854.6 MB · 3,290 个文件 |
+| **挂载路径** | `/kaggle/input/datasets/kennethdeng/am-defect-v1` |
+| 验证 kernel | <https://www.kaggle.com/code/kennethdeng/am-defect-v1-check>（跑一下就知道数据在不在） |
 
-1. 先把数据整理成本地这个结构：
+**已在 Kaggle 机器上实际跑出来的核对结果（不是估计）**：
 
 ```text
-am-defect-v1/
-├── raw/D1/defect/          # 136 张
-├── raw/D1/nondefect/       # 135 张
-├── raw/D2/defect/          # 947 张
-├── raw/D2/nondefect/       # 2070 张
-└── splits/                 # 地基组生成的 csv
+data/D1/defect       got=  136  OK
+data/D1/nondefect    got=  135  OK
+data/D2/defect       got=  947  OK
+data/D2/nondefect    got= 2070  OK
+total = 854.6 MB     RESULT: ALL GOOD
 ```
 
-2. Kaggle 首页 → `Datasets → New Dataset` → 拖文件夹进去 → 标题写 `am-defect-v1` → 可见性选 **Private** → Create
+**⚠️ 剩下唯一要你手点的一步：加协作者。**
+私有 Dataset 只有 owner 能挂载，7 个组员必须先被加进来：
 
-**方式二：命令行（推荐，可版本化）**
+> Dataset 页面 → 右上 `⋯` → `Settings` → `Collaborators` → 填 7 人 Kaggle 用户名 → Save
+
+（Kaggle API 没有这个接口，只能网页点。加完让每人跑一次上面的验证 kernel。）
+
+**踩过的三个坑（写下来免得再踩）**：
+
+1. `kaggle datasets create` 默认**忽略所有子目录**（报 `Skipping folder: ...`），必须加 `-r zip`；
+2. 顶层需要一个包装目录（我们用了 `data/`），否则 zip 解压会吃掉一层目录名；
+3. 新版 Kaggle 挂载路径是 `/kaggle/input/datasets/<owner>/<slug>`，**不是** `/kaggle/input/<slug>`。
+
+**自己重建的命令（备查）**：
 
 ```powershell
-pip install kaggle
-# 先去 kaggle.com → Settings → API → Create New Token，下载 kaggle.json
-# 放到 C:\Users\<你>\.kaggle\kaggle.json
-
-kaggle datasets init -p am-defect-v1        # 生成 dataset-metadata.json
-#   编辑它：title / id / licenses 三行
-kaggle datasets create -p am-defect-v1 -r zip
-kaggle datasets status <你的用户名>/am-defect-v1
-# 以后更新：kaggle datasets version -p am-defect-v1 -m "v2: add splits"
+kaggle datasets create -p <含 dataset-metadata.json 的目录> -r zip
+kaggle datasets status kennethdeng/am-defect-v1
+# 以后更新：kaggle datasets version -p <目录> -m "v2: add splits"
 ```
-
-> 上传限制：私有 Dataset 上限 200 GB，我们只有 ~1 GB，不用担心。首次上传约 10–30 分钟（看带宽）。
 
 ### 2.3 8 个人怎么用这份数据
 
-在 Kaggle Notebook 里：
-
 ```python
 import os
-for root, dirs, files in os.walk("/kaggle/input/am-defect-v1"):
-    print(root, len(files))
+BASE = "/kaggle/input/datasets/kennethdeng/am-defect-v1/data"
+for ds in ["D1", "D2"]:
+    for lab in ["defect", "nondefect"]:
+        p = f"{BASE}/{ds}/{lab}"
+        print(ds, lab, len(os.listdir(p)))
+# 期望：D1 defect 136 / D1 nondefect 135 / D2 defect 947 / D2 nondefect 2070
 ```
 
-- 路径固定为 `/kaggle/input/am-defect-v1/`，**只读**；
-- 所有输出写 `/kaggle/working/`；
+- 路径**只读**；所有输出写 `/kaggle/working/`；
 - Notebook 默认**关网**：要 `git clone` 私有仓或装包时，右侧 `Settings → Internet → On`。
 
 ### 2.4 让 Notebook 能 clone 私有仓库（关键一步）
@@ -189,7 +197,8 @@ subprocess.run(f"git clone https://x-access-token:{tok}@github.com/Zheyi-D/am-de
 - [ ] 7 个组员全部接受 GitHub 邀请，且 `git clone` 成功（截图发群）
 - [ ] 至少 1 个组员成功提了一个 PR，CI 变绿，组长 merge 掉
 - [ ] 8 人全部注册 Kaggle 并**完成手机验证**（截图能看到 GPU 选项）
-- [ ] `am-defect-v1` 上传完成，8 人验证 `/kaggle/input/am-defect-v1/` 可读
+- [ ] `am-defect-v1` 已上传并验证（计数 136/135/947/2070 全对），且已加 7 人为 Collaborator
+- [ ] 8 人各跑一次验证 kernel `kennethdeng/am-defect-v1-check`，或自己 `os.listdir` 拍照发群
 - [ ] Word Online 文档建好，8 人能看到自己的章节标题
 - [ ] 飞书群置顶消息 + 看板 8 条任务建好
 - [ ] 组会开完，4 个组认领完毕
@@ -208,4 +217,4 @@ subprocess.run(f"git clone https://x-access-token:{tok}@github.com/Zheyi-D/am-de
 | Kaggle 没有 GPU 选项 | 没做手机验证 | Settings → Phone Verification |
 | Kaggle 上传卡住 | 网页上传大文件不稳 | 改用 `kaggle datasets create` 命令行 |
 | Notebook `git clone` 失败 | 没开 Internet 或 token 没配对 | Settings → Internet → On；检查 Secret 名是否为 `GH_TOKEN` |
-| 8 个人数据不一致 | 有人自己下载了数据 | 只允许挂载 `/kaggle/input/am-defect-v1`，禁止本地下载 |
+| 8 个人数据不一致 | 有人自己下载了数据 | 只允许挂载 `/kaggle/input/datasets/kennethdeng/am-defect-v1`，禁止本地下载 |

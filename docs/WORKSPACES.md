@@ -35,8 +35,9 @@ git push -u origin main
 | 可见性 | **Private** |
 | 内容 | `raw/`（D1+D2 原始，896 MB）、`processed/`（224×224）、`splits/`、`manifest.csv` |
 | 建的人 | 数据管理员（地基组） |
-| 挂载路径 | `/kaggle/input/am-defect-v1/` |
-| 建好标志 | 8 人各开一个 Notebook，`ls /kaggle/input/am-defect-v1/` 能看到全部子目录 |
+| 挂载路径 | `/kaggle/input/datasets/kennethdeng/am-defect-v1/data/` ← **注意新版多了一层** |
+| 现状 | ✅ 2026-10-23 已上传并验证：854.6 MB，136/135/947/2070 全对 |
+| 建好标志 | 8 人各开一个 Notebook，`os.listdir(BASE)` 能列出四个分组目录 |
 
 ```bash
 # 本机（数据管理员）

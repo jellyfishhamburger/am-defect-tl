@@ -72,7 +72,8 @@ python -m src.aggregate
 | `tests/` | 契约测试（划分不泄漏、metrics schema 合法） | 地基组 | ✅ |
 
 **不进 Git 的东西**：`data/`、模型权重（`*.pt`/`*.pth`）、`__pycache__`、虚拟环境、原始压缩包。
-数据集只存在 **Kaggle 私有 Dataset** `am-defect-v1`，8 人挂载同一个路径。
+数据集只存在 **Kaggle 私有 Dataset** [am-defect-v1](https://www.kaggle.com/datasets/kennethdeng/am-defect-v1)（854.6 MB，已验证），
+8 人挂载同一路径：`/kaggle/input/datasets/kennethdeng/am-defect-v1/data/`。
 
 ---
 

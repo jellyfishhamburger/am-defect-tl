@@ -22,6 +22,24 @@
 > ⚠️ **与作者 README 的差异**：README 写 D1 为 136/136（272 张），仓库实际只有 135 张 goodcylinder，
 > 共 271 张。作者论文的混淆矩阵求和为 272 → 上传时漏了 1 张。报告里需要说明这一点。
 
+### 1.1 已上传的 Kaggle 副本（2026-10-23 验证通过）
+
+| 项 | 值 |
+|---|---|
+| 地址 | <https://www.kaggle.com/datasets/kennethdeng/am-defect-v1> |
+| 挂载路径 | `/kaggle/input/datasets/kennethdeng/am-defect-v1/data/{D1,D2}/{defect,nondefect}/` |
+| 核对结果 | 在 Kaggle 机器上实跑：136 / 135 / 947 / 2070，合计 854.6 MB，**ALL GOOD** |
+
+```python
+import os
+BASE = "/kaggle/input/datasets/kennethdeng/am-defect-v1/data"
+for ds in ["D1", "D2"]:
+    for lab in ["defect", "nondefect"]:
+        print(ds, lab, len(os.listdir(f"{BASE}/{ds}/{lab}")))
+```
+
+> 新版 Kaggle 的挂载路径是 `/kaggle/input/datasets/<owner>/<slug>`，比旧文档多一层 `datasets/<owner>`。
+
 ## 2. 第三个数据集：确认存在，但未公开
 
 论文摘要写 "across **three** datasets"，公开仓库只有两个。本组用作者 `AM3d` 仓库里 99 份结果表的
