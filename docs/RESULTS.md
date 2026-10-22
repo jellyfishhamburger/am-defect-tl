@@ -36,9 +36,9 @@ results/runs/<run_id>/
   "model": "vgg16",
   "pretrained": "imagenet",
   "freeze": "all_conv",
-  "head": "AvgPool2d(4)->Flatten->Dense(256)->Dropout(0.5)->Dense(2)",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
   "n_params_total": 138357544,
-  "n_params_trainable": 262656,
+  "n_params_trainable": 32962,
 
   "dataset": "D1",
   "split_file": "splits/D1.csv",

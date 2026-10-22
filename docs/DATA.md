@@ -52,8 +52,11 @@ python -m src.data_prepare --raw data/raw/AMdataset --out data/processed --size 
 
 | 数据集 | 规则 | 理由 |
 |---|---|---|
-| D1 | 保持长宽比 resize 短边→224，中心裁剪 224×224 | 原图 5184×3456，是大幅下采样 |
-| D2 | 直接 resize 128→224（双线性） | 已是正方形，上采样 |
+| D1 | **直接 `cv2.resize` 到 224×224，忽略长宽比**（把 5184×3456 拉成正方形），像素 /255 | 与作者 notebook 的实现一致（见 [AUTHOR_CODE.md](AUTHOR_CODE.md) §3） |
+| D2 | 同上：`cv2.resize` 128→224 | 已是正方形，无变形 |
+
+> **保真 vs 改进**：作者原始实现是"直接拉伸、不裁剪"。我们的主实验沿用这一做法以保证可比性；
+> 另设一组"保持长宽比 + 中心裁剪"的对照实验，用来验证预处理对结果的影响（写进报告的调参讨论）。
 
 产物：`data/processed/D1/<label>/*.jpg`、`data/processed/D2/<label>/*.jpg`、`data/manifest.csv`
 （字段：`path,dataset,label,orig_w,orig_h,sha256,source_id`）。

@@ -25,7 +25,7 @@
 
 | 资源 | 我们用它做了什么 | 是否含可复用代码 |
 |---|---|---|
-| [AM3d](https://github.com/mahsan2/AM3d)（论文作者仓库） | 只读取其 **99 份 xlsx 结果表 / png 曲线** 作为数值对照 | ❌ **仓库内没有任何训练代码**（413 个文件全为 xlsx、png、notebook 输出） |
+| [AM3d](https://github.com/mahsan2/AM3d)（论文作者仓库） | ① 解析其 **99 份 xlsx 结果表**做数值对照；② 阅读其 **3 个 Keras notebook（约 4,781 行）**做方法对齐 | ⚠️ **有代码**：`fault_3d_printing_experiment.ipynb`（主实验）、`basic_algorithm.ipynb`（草稿）、`base_algorithm.ipynb`（3 个 baseline）。我们**未复制**，仅参考其预处理/头结构/超参，在 PyTorch 中重写。详见 [docs/AUTHOR_CODE.md](docs/AUTHOR_CODE.md) |
 | [AMdataset](https://github.com/mahsan2/AMdataset) | 数据来源 | ❌ 只有图片 |
 | 论文 arXiv:2310.08645 | 方法细节（冻结主干 + AvgPool→Flatten→Dense→Dropout→Dense） | ❌ 只有文字与图 |
 | `tools/fetch_paper_results.py` | 我们**自己写**的脚本，用于把作者 xlsx 抽成对照表 | ✅ 本组原创 |

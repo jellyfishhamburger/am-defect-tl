@@ -67,7 +67,7 @@ python -m src.aggregate
 | `analysis/` | 消融、泄漏实验、Grad-CAM、LIME、效率测量、demo | 模型组 C + 分析 | ✅ |
 | `results/runs/` | 每个 run 的 metrics.json + 图 | 跑该 run 的人 | ✅（权重除外） |
 | `results/leaderboard.csv` | 全组结果总表（脚本生成，禁止手改） | 地基组 | ✅ |
-| `docs/` | 数据说明、结果格式、实验记录规范 | 组长 | ✅ |
+| `docs/` | 数据说明、结果格式、作者代码清单、工作区总览 | 组长 | ✅ |
 | `.github/` | PR / Issue 模板、CI | 地基组 | ✅ |
 | `tests/` | 契约测试（划分不泄漏、metrics schema 合法） | 地基组 | ✅ |
 
@@ -118,10 +118,12 @@ Commit（写清做了什么）→ Push → 网页开 Pull Request → 指派 1 �
 |---|---|---|---|
 | PyTorch / torchvision | 框架 + ImageNet 预训练权重 | 骨干网络与训练 | 否（仅调用） |
 | scikit-learn | 指标库 | 10 个评估指标 | 否 |
-| AM3d（作者仓库） | **仅结果表**，无训练代码 | 数值对照 | 否 |
+| AM3d（作者仓库） | 99 份结果 xlsx + 3 个 Keras notebook | 数值对照 + 方法对齐（**未复制代码**，见 [docs/AUTHOR_CODE.md](docs/AUTHOR_CODE.md)） | 否 |
 | `lime` / `grad-cam` | 可解释性库 | 若使用需登记 | 待定 |
 
-> 作者仓库 `AM3d` 不包含任何训练代码（413 个文件为 xlsx 与 png），因此本仓库的训练/评估/数据管线均为原创实现。
+> 作者仓库 `AM3d` 公开了 3 个 Keras notebook（约 4,781 行），但**没有发布任何训练好的权重**，代码也不能直接复现
+> （路径写死、模型靠注释切换、无划分文件、无 seed 治理）。我们仅用它做方法对齐，全部代码在 PyTorch 中重写，
+> 详见 [docs/AUTHOR_CODE.md](docs/AUTHOR_CODE.md)。
 
 ---
 

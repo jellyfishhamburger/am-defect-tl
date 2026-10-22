@@ -8,8 +8,15 @@ freeze: all_conv            # 论文设定：冻结全部卷积层，只训新�
 # 论文同款 head（Keras: AveragePooling2D(4,4) -> Flatten -> Dense -> Dropout(0.5) -> Dense(softmax)）
 head:
   pooling: [4, 4]
-  dense_units: 256          # 论文未给出该值 —— 我们的选择，需写进 README/报告 limitations
+  dense_units: 64           # ← 来自作者 notebook 的 Dense(64, relu)（论文正文未写，见 docs/AUTHOR_CODE.md §3）
   dropout: 0.5
+
+# 训练时的在线增强：作者 notebook 用 ImageDataGenerator(rotation_range=15, fill_mode="nearest")
+# 注意 D2 本身已是离线增强过的数据集，再叠在线增强 = 双重增强，需在报告里说明
+train_aug:
+  rotation_degrees: 15
+  fill_mode: nearest
+  enabled: true
 
 dataset: "D1"               # D1 | D2 | D2p
 split_file: "splits/D1.csv"
