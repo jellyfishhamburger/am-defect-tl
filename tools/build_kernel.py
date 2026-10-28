@@ -76,13 +76,20 @@ sys.exit(rc)
 
 
 def build_zip() -> bytes:
-    """把需要运行的文件打进 zip（不含 data、.git）。"""
+    """把需要运行的文件打进 zip（不含 data、.git），并写入 VERSION 记录 commit。"""
     patterns = ["src/*.py", "configs/*.yaml", "splits/*.csv", "requirements.txt"]
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for pattern in patterns:
             for p in sorted(ROOT.glob(pattern)):
                 z.write(p, p.relative_to(ROOT).as_posix())
+        try:
+            commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],
+                                    cwd=ROOT, capture_output=True, text=True, timeout=5
+                                    ).stdout.strip()
+        except Exception:
+            commit = ""
+        z.writestr("VERSION", commit or "unknown")
     return buf.getvalue()
 
 

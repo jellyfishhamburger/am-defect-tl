@@ -1,1 +1,2 @@
 run_id,model,dataset,optimizer,seed,accuracy,precision,recall,f1,mcc,kappa,auc,map,sensitivity,specificity,n_params_trainable,train_time_s,git_commit,paper_acc,paper_f1,delta_acc
+vgg16__D1__adam__s42,vgg16,D1,adam,42,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,32962,26.53,unknown,1.0,1.0,0.0

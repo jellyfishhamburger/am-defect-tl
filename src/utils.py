@@ -48,7 +48,11 @@ def make_run_id(model: str, dataset: str, optimizer: str, seed: int) -> str:
 
 
 def git_commit() -> str:
-    """尽力读取当前 commit；读不到就返回 unknown（Kaggle 上代码是 zip 解压的，通常 unknown）。"""
+    """读当前 commit。
+
+    Kaggle 上代码是 zip 解压的、没有 .git，所以 build_kernel 会在包里写一个 VERSION 文件，
+    这里优先读 git，退化为读 VERSION。
+    """
     try:
         import subprocess
 
@@ -56,6 +60,14 @@ def git_commit() -> str:
             ["git", "rev-parse", "--short", "HEAD"],
             capture_output=True, text=True, timeout=5,
         )
-        return out.stdout.strip() or "unknown"
+        commit = out.stdout.strip()
+        if commit:
+            return commit
+    except Exception:
+        pass
+
+    version_file = Path(__file__).resolve().parents[1] / "VERSION"
+    try:
+        return version_file.read_text(encoding="utf-8").strip() or "unknown"
     except Exception:
         return "unknown"
