@@ -16,7 +16,9 @@
 path,label,split,source_id
 ```
 
-- `path`：相对仓库根的路径，例 `data/processed/D1/defect/IMG_9078.jpg`
+- `path`：**相对数据根目录**的路径，例 `data/D1/defect/IMG_9078.JPG`
+  （代码里用 `--data-root` 拼接，本地传 `_kaggle-build/am-defect-v1/`，
+   Kaggle 传 `/kaggle/input/datasets/kennethdeng/am-defect-v1/`，一份 splits 两边都能用）
 - `label`：`defect` | `nondefect`
 - `split`：`train` | `val` | `test`
 - `source_id`：D1 = 原图文件名（`IMG_9078`）；D2 = 空；D2p = 原图文件名

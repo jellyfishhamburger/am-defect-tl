@@ -37,3 +37,6 @@ desktop.ini
 # ---- 注意 ----
 # results/runs/**/metrics.json 与 results/figures/** 要进 Git（体积小，是交付物），
 # 不要在这里忽略它们。
+
+# ---- Kaggle kernel 构建产物（base64 内嵌代码，生成物，不进 Git）----
+kaggle/

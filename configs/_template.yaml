@@ -13,10 +13,11 @@ head:
 
 # 训练时的在线增强：作者 notebook 用 ImageDataGenerator(rotation_range=15, fill_mode="nearest")
 # 注意 D2 本身已是离线增强过的数据集，再叠在线增强 = 双重增强，需在报告里说明
+# 主矩阵先关（快、且便于缓存特征）；单独做一组"开/关在线增强"的对照实验写进报告
 train_aug:
   rotation_degrees: 15
   fill_mode: nearest
-  enabled: true
+  enabled: false
 
 dataset: "D1"               # D1 | D2 | D2p
 split_file: "splits/D1.csv"
