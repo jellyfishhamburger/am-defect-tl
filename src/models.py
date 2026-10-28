@@ -15,19 +15,21 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-# config 里的 model 名 → timm 模型名
+# config 里的 model 名 → timm 模型名（列表 = 候选名，按顺序尝试，取第一个能加载预训练权重的）
+# 说明：timm 里部分旧名字已不带默认预训练权重（如 efficientnet_b7），
+#       所以这里给候选回退，避免单个模型卡住整批实验。
 BACKBONES = {
-    "vgg16": "vgg16",
-    "vgg19": "vgg19",
-    "resnet50": "resnet50",
-    "resnet101": "resnet101",
-    "inception_resnet_v2": "inception_resnet_v2",
-    "xception": "xception",
-    "mobilenet_v2": "mobilenetv2_100",
-    "efficientnet_b0": "efficientnet_b0",
-    "efficientnet_b7": "efficientnet_b7",
-    "efficientnet_v2m": "tf_efficientnetv2_m",
-    "nasnet_large": "nasnetalarge",
+    "vgg16": ["vgg16"],
+    "vgg19": ["vgg19"],
+    "resnet50": ["resnet50"],
+    "resnet101": ["resnet101"],
+    "inception_resnet_v2": ["inception_resnet_v2"],
+    "xception": ["xception"],
+    "mobilenet_v2": ["mobilenetv2_100"],
+    "efficientnet_b0": ["efficientnet_b0", "tf_efficientnet_b0"],
+    "efficientnet_b7": ["tf_efficientnet_b7", "efficientnet_b7.ra_in1k", "efficientnet_b7"],
+    "efficientnet_v2m": ["tf_efficientnetv2_m", "efficientnetv2_m"],
+    "nasnet_large": ["nasnetalarge"],
 }
 
 
@@ -63,7 +65,20 @@ class TransferModel(nn.Module):
             raise KeyError(f"未知模型 {name}，可选：{list(BACKBONES)}")
         self.name = name
         self.freeze = freeze
-        self.net = timm.create_model(BACKBONES[name], pretrained=pretrained, num_classes=0)
+
+        # 候选名依次尝试：某些 timm 旧名字没有默认预训练权重
+        last_err = None
+        self.net = None
+        for candidate in BACKBONES[name]:
+            try:
+                self.net = timm.create_model(candidate, pretrained=pretrained, num_classes=0)
+                self.timm_name = candidate
+                break
+            except Exception as exc:
+                last_err = exc
+                print(f"[models] {name} 候选 {candidate} 加载失败：{type(exc).__name__}: {exc}", flush=True)
+        if self.net is None:
+            raise RuntimeError(f"{name} 所有候选名都加载失败，最后一个错误：{last_err}")
 
         if freeze == "all_conv":
             for p in self.net.parameters():

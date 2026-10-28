@@ -63,12 +63,14 @@ rc = subprocess.run(CMD, shell=True).returncode
 print("[runner] exit code:", rc, flush=True)
 
 # 把结果搬到 /kaggle/working/results，方便 kaggle kernels output 下载
+# 若训练已经直接写 /kaggle/working/results，则跳过复制（路径相同）
 src = os.path.join(code_dir, "results")
 dst = os.path.join(WORK, "results")
-if os.path.isdir(src):
+if os.path.isdir(src) and os.path.abspath(src) != os.path.abspath(dst):
     shutil.copytree(src, dst, dirs_exist_ok=True)
+if os.path.isdir(dst):
     n = sum(len(files) for _, _, files in os.walk(dst))
-    print("[runner] copied results ->", dst, "files:", n, flush=True)
+    print("[runner] results ->", dst, "files:", n, flush=True)
 else:
     print("[runner] WARN: no results dir produced", flush=True)
 sys.exit(rc)
