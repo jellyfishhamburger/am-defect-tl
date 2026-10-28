@@ -54,6 +54,8 @@ def main() -> None:
     ap.add_argument("--limit-runs", type=int, default=None)
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--cache-root", type=Path, default=None,
+                    help="预处理缓存目录（强烈建议：否则每 epoch 都要解码 5184×3456 大图）")
     args = ap.parse_args()
 
     models = MODELS if args.models == "all" else [x.strip() for x in args.models.split(",")]
@@ -74,7 +76,7 @@ def main() -> None:
         print(f"\n[batch] ({i}/{len(matrix)}) {model} / {dataset} / {optimizer}", flush=True)
         try:
             run(cfg, args.data_root, args.splits_dir, args.out,
-                smoke=args.smoke, force=args.force)
+                smoke=args.smoke, force=args.force, cache_root=args.cache_root)
             done.append(f"{model}__{dataset}__{optimizer}")
         except Exception as exc:  # 单个 run 失败不阻断整批
             print(f"[batch][ERROR] {model}/{dataset}/{optimizer}: {type(exc).__name__}: {exc}", flush=True)

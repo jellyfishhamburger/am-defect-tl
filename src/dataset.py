@@ -36,12 +36,25 @@ def build_transform(input_size: int, train: bool, augment: bool):
 
 class AMDefectDataset(Dataset):
     def __init__(self, rows: list[dict], data_root: Path, input_size: int = 224,
-                 train: bool = False, augment: bool = False, limit: int | None = None):
+                 train: bool = False, augment: bool = False, limit: int | None = None,
+                 cache_root: Path | None = None):
         from PIL import Image  # noqa: F401  (确认 Pillow 可用)
 
         self.rows = rows[:limit] if limit else rows
         self.data_root = Path(data_root)
+        self.cache_root = Path(cache_root) if cache_root else None
         self.transform = build_transform(input_size, train, augment)
+
+    def _resolve(self, rel_path: str) -> Path:
+        """data/D1/defect/x.JPG → 缓存路径 <cache>/D1/defect/x.jpg（若提供了缓存根）。"""
+        rel = str(rel_path).replace("\\", "/")
+        if self.cache_root is None:
+            return self.data_root / rel
+        parts = rel.split("/")
+        if len(parts) < 4 or parts[0] != "data":
+            return self.data_root / rel
+        _, ds, label, fname = parts[0], parts[1], parts[2], "/".join(parts[3:])
+        return self.cache_root / ds / label / f"{Path(fname).stem}.jpg"
 
     def __len__(self) -> int:
         return len(self.rows)
@@ -50,8 +63,7 @@ class AMDefectDataset(Dataset):
         from PIL import Image
 
         r = self.rows[idx]
-        # 防御：csv 里可能是 Windows 反斜杠，统一转成 POSIX 后再拼路径
-        img_path = self.data_root / str(r["path"]).replace("\\", "/")
+        img_path = self._resolve(r["path"])
         img = Image.open(img_path).convert("RGB")
         return self.transform(img), torch.tensor(LABEL_TO_IDX[r["label"]], dtype=torch.long)
 

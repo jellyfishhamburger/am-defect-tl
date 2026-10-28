@@ -105,7 +105,7 @@ def predict(model, loader, device):
 
 
 def run(cfg: dict, data_root: Path, splits_dir: Path, out_root: Path,
-        smoke: bool = False, force: bool = False) -> Path:
+        smoke: bool = False, force: bool = False, cache_root: Path | None = None) -> Path:
     run_id = make_run_id(cfg["model"], cfg["dataset"], cfg["optimizer"], int(cfg["seed"]))
     run_dir = ensure_dir(Path(out_root) / "runs" / run_id)
     if (run_dir / "metrics.json").exists() and not force and not smoke:
@@ -128,7 +128,8 @@ def run(cfg: dict, data_root: Path, splits_dir: Path, out_root: Path,
             raise RuntimeError(f"{split_csv} 里 {split} 为空")
         ds = AMDefectDataset(rows, data_root, int(cfg["input_size"]),
                              train=(split == "train"), augment=bool(cfg["augment"]),
-                             limit=SMOKE_LIMITS[split] if smoke else None)
+                             limit=SMOKE_LIMITS[split] if smoke else None,
+                             cache_root=cache_root)
         loaders[split] = (DataLoader(
             ds, batch_size=int(cfg["batch_size"]), shuffle=(split == "train"),
             num_workers=int(cfg["num_workers"]), pin_memory=(device.type == "cuda"),
@@ -227,13 +228,16 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--force", action="store_true")
+    ap.add_argument("--cache-root", type=Path, default=None,
+                    help="预处理缓存目录（建议先跑 src.data_prepare）")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
     for key, val in (("optimizer", args.optimizer), ("dataset", args.dataset), ("seed", args.seed)):
         if val is not None:
             cfg[key] = val
-    run(cfg, args.data_root, args.splits_dir, args.out, smoke=args.smoke, force=args.force)
+    run(cfg, args.data_root, args.splits_dir, args.out, smoke=args.smoke, force=args.force,
+        cache_root=args.cache_root)
 
 
 if __name__ == "__main__":
