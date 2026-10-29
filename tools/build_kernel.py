@@ -34,7 +34,7 @@ RUNNER = '''# 由 tools/build_kernel.py 自动生成 —— 自包含运行器
 import base64, io, os, shutil, subprocess, sys, zipfile
 
 CODE_B64 = """__CODE_B64__"""
-CMD = "__CMD__"
+CMD = __CMD_JSON__
 WORK = "/kaggle/working"
 code_dir = os.path.join(WORK, "code")
 
@@ -97,7 +97,10 @@ def build_zip() -> bytes:
 
 def write_kernel(folder: Path, slug: str, cmd: str, gpu: bool, internet: bool) -> None:
     payload = base64.b64encode(build_zip()).decode("ascii")
-    main_py = RUNNER.replace("__CODE_B64__", payload).replace("__CMD__", cmd)
+    # 用 json.dumps 注入命令：命令里可能含引号/反斜杠/中文，直接拼字符串会破坏 Python 语法
+    main_py = RUNNER.replace("__CODE_B64__", payload).replace("__CMD_JSON__", json.dumps(cmd))
+    # 本地先编译一遍，语法错在推 Kaggle 之前就发现（省一次 GPU 运行）
+    compile(main_py, "main.py", "exec")
     folder.mkdir(parents=True, exist_ok=True)
     (folder / "main.py").write_text(main_py, encoding="utf-8")
     meta = {
