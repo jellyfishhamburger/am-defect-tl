@@ -1,0 +1,99 @@
+{
+  "run_id": "efficientnet_b7__D1__sgd__s42",
+  "git_commit": "29d0b96",
+  "author": "lead",
+  "model": "efficientnet_b7",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 63950994,
+  "n_params_trainable": 164034,
+  "dataset": "D1",
+  "split_file": "splits/D1.csv",
+  "input_size": 224,
+  "n_train": 189,
+  "n_val": 28,
+  "n_test": 54,
+  "optimizer": "sgd",
+  "lr": 0.001,
+  "batch_size": 8,
+  "epochs": 30,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 49.0,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9947089947089947,
+      "precision": 1.0,
+      "recall": 0.9894736842105263,
+      "f1": 0.9947089947089947,
+      "mcc": 0.9894736842105263,
+      "kappa": 0.9894182856502995,
+      "auc": 0.9998880179171333,
+      "map": 0.9998903508771932,
+      "sensitivity": 0.9894736842105263,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 0.9999999999999999,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9629629629629629,
+      "precision": 0.9629629629629629,
+      "recall": 0.9629629629629629,
+      "f1": 0.9629629629629629,
+      "mcc": 0.9259259259259259,
+      "kappa": 0.9259259259259259,
+      "auc": 0.9986282578875172,
+      "map": 0.9986772486772484,
+      "sensitivity": 0.9629629629629629,
+      "specificity": 0.9629629629629629
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        94,
+        0
+      ],
+      [
+        1,
+        94
+      ]
+    ],
+    "val": [
+      [
+        14,
+        0
+      ],
+      [
+        0,
+        14
+      ]
+    ],
+    "test": [
+      [
+        26,
+        1
+      ],
+      [
+        1,
+        26
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}
