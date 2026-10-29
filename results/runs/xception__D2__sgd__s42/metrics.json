@@ -1,0 +1,99 @@
+{
+  "run_id": "xception__D2__sgd__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "xception",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 20938218,
+  "n_params_trainable": 131266,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "sgd",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 350.94,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9952651515151515,
+      "precision": 1.0,
+      "recall": 0.9849170437405732,
+      "f1": 0.9924012158054711,
+      "mcc": 0.9890229587182958,
+      "kappa": 0.9889627146704962,
+      "auc": 0.999727278499657,
+      "map": 0.9994540647102039,
+      "sensitivity": 0.9849170437405732,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9900662251655629,
+      "precision": 1.0,
+      "recall": 0.968421052631579,
+      "f1": 0.983957219251337,
+      "mcc": 0.9770294090586085,
+      "kappa": 0.9767656562548084,
+      "auc": 0.9997457411645055,
+      "map": 0.9994584675975653,
+      "sensitivity": 0.968421052631579,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9950248756218906,
+      "precision": 1.0,
+      "recall": 0.9841269841269841,
+      "f1": 0.992,
+      "mcc": 0.9884568447238686,
+      "kappa": 0.9883902269970543,
+      "auc": 0.9997571760856785,
+      "map": 0.9994992712267926,
+      "sensitivity": 0.9841269841269841,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        10,
+        653
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        3,
+        92
+      ]
+    ],
+    "test": [
+      [
+        414,
+        0
+      ],
+      [
+        3,
+        186
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

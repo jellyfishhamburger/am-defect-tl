@@ -1,0 +1,99 @@
+{
+  "run_id": "nasnet_large__D2__adam__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "nasnet_large",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 84978392,
+  "n_params_trainable": 258242,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "adam",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 903.0,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9924242424242424,
+      "precision": 1.0,
+      "recall": 0.975867269984917,
+      "f1": 0.9877862595419847,
+      "mcc": 0.9824506776070105,
+      "kappa": 0.9822967123812997,
+      "auc": 0.9997803655092657,
+      "map": 0.9995438521458104,
+      "sensitivity": 0.975867269984917,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9834437086092715,
+      "precision": 1.0,
+      "recall": 0.9473684210526315,
+      "f1": 0.972972972972973,
+      "mcc": 0.9617821095323434,
+      "kappa": 0.9610523600722208,
+      "auc": 0.9909992372234935,
+      "map": 0.9876798746433433,
+      "sensitivity": 0.9473684210526315,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9867330016583747,
+      "precision": 0.9891891891891892,
+      "recall": 0.9682539682539683,
+      "f1": 0.9786096256684492,
+      "mcc": 0.96911228815369,
+      "kappa": 0.968995835261453,
+      "auc": 0.9969583109679728,
+      "map": 0.9954476383787527,
+      "sensitivity": 0.9682539682539683,
+      "specificity": 0.9951690821256038
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        16,
+        647
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        5,
+        90
+      ]
+    ],
+    "test": [
+      [
+        412,
+        2
+      ],
+      [
+        6,
+        183
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

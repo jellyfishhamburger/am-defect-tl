@@ -1,0 +1,99 @@
+{
+  "run_id": "nasnet_large__D2__sgd__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "nasnet_large",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 84978392,
+  "n_params_trainable": 258242,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "sgd",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 896.3,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9611742424242424,
+      "precision": 0.9693053311793215,
+      "recall": 0.9049773755656109,
+      "f1": 0.9360374414976599,
+      "mcc": 0.9093159168858723,
+      "kappa": 0.9082123606760689,
+      "auc": 0.9894835674886826,
+      "map": 0.9832908580463582,
+      "sensitivity": 0.9049773755656109,
+      "specificity": 0.9868875086266391
+    },
+    "val": {
+      "accuracy": 0.9470198675496688,
+      "precision": 0.9540229885057471,
+      "recall": 0.8736842105263158,
+      "f1": 0.9120879120879121,
+      "mcc": 0.8760104767169861,
+      "kappa": 0.8742779830358537,
+      "auc": 0.9827612509534707,
+      "map": 0.9748381923853582,
+      "sensitivity": 0.8736842105263158,
+      "specificity": 0.9806763285024155
+    },
+    "test": {
+      "accuracy": 0.9651741293532339,
+      "precision": 0.9565217391304348,
+      "recall": 0.9312169312169312,
+      "f1": 0.9436997319034852,
+      "mcc": 0.9186691981982731,
+      "kappa": 0.9184962057579795,
+      "auc": 0.9887661989111264,
+      "map": 0.9831789826873757,
+      "sensitivity": 0.9312169312169312,
+      "specificity": 0.9806763285024155
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1430,
+        19
+      ],
+      [
+        63,
+        600
+      ]
+    ],
+    "val": [
+      [
+        203,
+        4
+      ],
+      [
+        12,
+        83
+      ]
+    ],
+    "test": [
+      [
+        406,
+        8
+      ],
+      [
+        13,
+        176
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "run_id": "inception_resnet_v2__D2__rmsprop__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "inception_resnet_v2",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 54404962,
+  "n_params_trainable": 98498,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "rmsprop",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 378.74,
+  "metrics": {
+    "train": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9966887417218543,
+      "precision": 1.0,
+      "recall": 0.9894736842105263,
+      "f1": 0.9947089947089947,
+      "mcc": 0.9923288765274764,
+      "kappa": 0.9922994543321944,
+      "auc": 0.9996948893974066,
+      "map": 0.9993746743095362,
+      "sensitivity": 0.9894736842105263,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9966832504145937,
+      "precision": 1.0,
+      "recall": 0.9894179894179894,
+      "f1": 0.9946808510638298,
+      "mcc": 0.9923009483826831,
+      "kappa": 0.992271311569962,
+      "auc": 0.9994121105232217,
+      "map": 0.9989643138579308,
+      "sensitivity": 0.9894179894179894,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        0,
+        663
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        1,
+        94
+      ]
+    ],
+    "test": [
+      [
+        414,
+        0
+      ],
+      [
+        2,
+        187
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

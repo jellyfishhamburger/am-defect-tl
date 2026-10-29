@@ -1,0 +1,99 @@
+{
+  "run_id": "nasnet_large__D1__sgd__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "nasnet_large",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 84978392,
+  "n_params_trainable": 258242,
+  "dataset": "D1",
+  "split_file": "splits/D1.csv",
+  "input_size": 224,
+  "n_train": 189,
+  "n_val": 28,
+  "n_test": 54,
+  "optimizer": "sgd",
+  "lr": 0.001,
+  "batch_size": 8,
+  "epochs": 30,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 73.57,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9523809523809523,
+      "precision": 0.967391304347826,
+      "recall": 0.9368421052631579,
+      "f1": 0.9518716577540107,
+      "mcc": 0.9052313718289388,
+      "kappa": 0.9047752337233388,
+      "auc": 0.9916013437849944,
+      "map": 0.9924393959910341,
+      "sensitivity": 0.9368421052631579,
+      "specificity": 0.9680851063829787
+    },
+    "val": {
+      "accuracy": 0.8571428571428571,
+      "precision": 0.8571428571428571,
+      "recall": 0.8571428571428571,
+      "f1": 0.8571428571428571,
+      "mcc": 0.7142857142857143,
+      "kappa": 0.7142857142857143,
+      "auc": 0.9744897959183674,
+      "map": 0.9778711484593836,
+      "sensitivity": 0.8571428571428571,
+      "specificity": 0.8571428571428571
+    },
+    "test": {
+      "accuracy": 0.9074074074074074,
+      "precision": 0.9230769230769231,
+      "recall": 0.8888888888888888,
+      "f1": 0.9056603773584906,
+      "mcc": 0.8153742483272113,
+      "kappa": 0.8148148148148149,
+      "auc": 0.9862825788751715,
+      "map": 0.9865150967002816,
+      "sensitivity": 0.8888888888888888,
+      "specificity": 0.9259259259259259
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        91,
+        3
+      ],
+      [
+        6,
+        89
+      ]
+    ],
+    "val": [
+      [
+        12,
+        2
+      ],
+      [
+        2,
+        12
+      ]
+    ],
+    "test": [
+      [
+        25,
+        2
+      ],
+      [
+        3,
+        24
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

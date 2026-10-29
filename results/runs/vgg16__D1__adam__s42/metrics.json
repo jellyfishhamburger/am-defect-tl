@@ -1,6 +1,6 @@
 {
   "run_id": "vgg16__D1__adam__s42",
-  "git_commit": "unknown",
+  "git_commit": "31025bb",
   "author": "lead",
   "model": "vgg16",
   "pretrained": "imagenet",
@@ -20,7 +20,7 @@
   "epochs": 30,
   "seed": 42,
   "device": "cuda",
-  "train_time_s": 26.53,
+  "train_time_s": 27.56,
   "metrics": {
     "train": {
       "accuracy": 1.0,

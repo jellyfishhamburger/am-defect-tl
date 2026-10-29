@@ -1,0 +1,99 @@
+{
+  "run_id": "vgg19__D2__sgd__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "vgg19",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 139603202,
+  "n_params_trainable": 32962,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "sgd",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 490.9,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9952651515151515,
+      "precision": 1.0,
+      "recall": 0.9849170437405732,
+      "f1": 0.9924012158054711,
+      "mcc": 0.9890229587182958,
+      "kappa": 0.9889627146704962,
+      "auc": 0.9994004290679482,
+      "map": 0.9990002408628593,
+      "sensitivity": 0.9849170437405732,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9900662251655629,
+      "precision": 1.0,
+      "recall": 0.968421052631579,
+      "f1": 0.983957219251337,
+      "mcc": 0.9770294090586085,
+      "kappa": 0.9767656562548084,
+      "auc": 0.9974574116450547,
+      "map": 0.99583361388546,
+      "sensitivity": 0.968421052631579,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9867330016583747,
+      "precision": 1.0,
+      "recall": 0.9576719576719577,
+      "f1": 0.9783783783783784,
+      "mcc": 0.9692868713869519,
+      "kappa": 0.9688154526413777,
+      "auc": 0.9970094317920404,
+      "map": 0.9956304521495083,
+      "sensitivity": 0.9576719576719577,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        10,
+        653
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        3,
+        92
+      ]
+    ],
+    "test": [
+      [
+        414,
+        0
+      ],
+      [
+        8,
+        181
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

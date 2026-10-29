@@ -1,0 +1,99 @@
+{
+  "run_id": "resnet101__D2__rmsprop__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "resnet101",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 42631426,
+  "n_params_trainable": 131266,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "rmsprop",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 384.1,
+  "metrics": {
+    "train": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9933774834437086,
+      "precision": 1.0,
+      "recall": 0.9789473684210527,
+      "f1": 0.9893617021276596,
+      "mcc": 0.9846722556363078,
+      "kappa": 0.9845547997749706,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 0.9789473684210527,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9917081260364843,
+      "precision": 1.0,
+      "recall": 0.9735449735449735,
+      "f1": 0.9865951742627346,
+      "mcc": 0.9807790228998717,
+      "kappa": 0.9805943347042808,
+      "auc": 0.9996421542315261,
+      "map": 0.9992987871101097,
+      "sensitivity": 0.9735449735449735,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        0,
+        663
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        2,
+        93
+      ]
+    ],
+    "test": [
+      [
+        414,
+        0
+      ],
+      [
+        5,
+        184
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

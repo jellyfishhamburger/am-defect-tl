@@ -1,0 +1,99 @@
+{
+  "run_id": "efficientnet_v2m__D2__rmsprop__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "efficientnet_v2m",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 52940470,
+  "n_params_trainable": 82114,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "rmsprop",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 428.1,
+  "metrics": {
+    "train": {
+      "accuracy": 0.9914772727272727,
+      "precision": 0.9953917050691244,
+      "recall": 0.9773755656108597,
+      "f1": 0.9863013698630136,
+      "mcc": 0.9802026720169756,
+      "kappa": 0.9801165516527175,
+      "auc": 0.9981830710730968,
+      "map": 0.9946308588056344,
+      "sensitivity": 0.9773755656108597,
+      "specificity": 0.9979296066252588
+    },
+    "val": {
+      "accuracy": 0.9304635761589404,
+      "precision": 0.8775510204081632,
+      "recall": 0.9052631578947369,
+      "f1": 0.8911917098445595,
+      "mcc": 0.8403341890509437,
+      "kappa": 0.8401149599152926,
+      "auc": 0.9554284261378082,
+      "map": 0.9189138455676428,
+      "sensitivity": 0.9052631578947369,
+      "specificity": 0.9420289855072463
+    },
+    "test": {
+      "accuracy": 0.9220563847429519,
+      "precision": 0.8817204301075269,
+      "recall": 0.8677248677248677,
+      "f1": 0.8746666666666667,
+      "mcc": 0.8181686973275406,
+      "kappa": 0.8181135562871831,
+      "auc": 0.966183574879227,
+      "map": 0.9164611167468648,
+      "sensitivity": 0.8677248677248677,
+      "specificity": 0.9468599033816425
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1446,
+        3
+      ],
+      [
+        15,
+        648
+      ]
+    ],
+    "val": [
+      [
+        195,
+        12
+      ],
+      [
+        9,
+        86
+      ]
+    ],
+    "test": [
+      [
+        392,
+        22
+      ],
+      [
+        25,
+        164
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

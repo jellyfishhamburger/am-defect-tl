@@ -1,0 +1,99 @@
+{
+  "run_id": "xception__D2__rmsprop__s42",
+  "git_commit": "31025bb",
+  "author": "lead",
+  "model": "xception",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 20938218,
+  "n_params_trainable": 131266,
+  "dataset": "D2",
+  "split_file": "splits/D2.csv",
+  "input_size": 224,
+  "n_train": 2112,
+  "n_val": 302,
+  "n_test": 603,
+  "optimizer": "rmsprop",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 351.29,
+  "metrics": {
+    "train": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1449,
+        0
+      ],
+      [
+        0,
+        663
+      ]
+    ],
+    "val": [
+      [
+        207,
+        0
+      ],
+      [
+        0,
+        95
+      ]
+    ],
+    "test": [
+      [
+        414,
+        0
+      ],
+      [
+        0,
+        189
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}
