@@ -10,6 +10,8 @@
 *.h5
 *.npz
 *.npy
+# 例外：分类头 checkpoint 只有 ~130 KB，是复现 Grad-CAM / demo 的必要输入，要进 Git
+!results/runs/**/model.pt
 
 # ---- Python ----
 __pycache__/

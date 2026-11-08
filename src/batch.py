@@ -56,6 +56,7 @@ def main() -> None:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--cache-root", type=Path, default=None,
                     help="预处理缓存目录（强烈建议：否则每 epoch 都要解码 5184×3456 大图）")
+    ap.add_argument("--save-weights", action="store_true", help="保存每个 run 的分类头权重")
     args = ap.parse_args()
 
     models = MODELS if args.models == "all" else [x.strip() for x in args.models.split(",")]
@@ -73,6 +74,8 @@ def main() -> None:
         cfg = dict(base)
         cfg.update({"model": model, "dataset": dataset, "optimizer": optimizer,
                     **DATASET_HP[dataset]})
+        if args.save_weights:
+            cfg["save_weights"] = True
         print(f"\n[batch] ({i}/{len(matrix)}) {model} / {dataset} / {optimizer}", flush=True)
         try:
             run(cfg, args.data_root, args.splits_dir, args.out,

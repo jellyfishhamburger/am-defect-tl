@@ -206,6 +206,22 @@ def run(cfg: dict, data_root: Path, splits_dir: Path, out_root: Path,
             "note": "冒烟结果，不可用于报告" if smoke else "",
         },
     })
+    if cfg.get("save_weights"):
+        # 只存「骨干名 + 分类头权重」：骨干是可复原的 ImageNet 预训练权重，
+        # 分类头仅 3 万参数（约 130 KB），checkpoint 极小，便于入库与传输。
+        torch.save({
+            "model": cfg["model"],
+            "num_classes": int(cfg["num_classes"]),
+            "freeze": str(cfg["freeze"]),
+            "dense_units": int(cfg["dense_units"]),
+            "dropout": float(cfg["dropout"]),
+            "input_size": int(cfg["input_size"]),
+            "feat_shape": list(model.feat_shape),
+            "head_state": model.head.state_dict(),
+            "run_id": run_id,
+        }, run_dir / "model.pt")
+        print(f"[train] 已保存分类头权重：{run_dir / 'model.pt'}", flush=True)
+
     try:
         ev.plot_curves(log, run_dir / "curves.png")
         for split in ("train", "val", "test"):
@@ -230,9 +246,12 @@ def main() -> None:
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--cache-root", type=Path, default=None,
                     help="预处理缓存目录（建议先跑 src.data_prepare）")
+    ap.add_argument("--save-weights", action="store_true", help="保存分类头权重 model.pt")
     args = ap.parse_args()
 
     cfg = load_config(args.config)
+    if args.save_weights:
+        cfg["save_weights"] = True
     for key, val in (("optimizer", args.optimizer), ("dataset", args.dataset), ("seed", args.seed)):
         if val is not None:
             cfg[key] = val

@@ -79,7 +79,7 @@ sys.exit(rc)
 
 def build_zip() -> bytes:
     """把需要运行的文件打进 zip（不含 data、.git），并写入 VERSION 记录 commit。"""
-    patterns = ["src/*.py", "configs/*.yaml", "splits/*.csv", "requirements.txt"]
+    patterns = ["src/*.py", "analysis/*.py", "configs/*.yaml", "splits/*.csv", "requirements.txt"]
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as z:
         for pattern in patterns:
