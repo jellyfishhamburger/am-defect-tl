@@ -30,19 +30,10 @@ from src.models import TransferModel
 
 
 def load_trained(run_dir: Path, device):
-    """从 model.pt 复原模型：骨干用 ImageNet 权重重建，再载入分类头。"""
-    ckpt = torch.load(Path(run_dir) / "model.pt", map_location="cpu", weights_only=False)
-    model = TransferModel(
-        ckpt["model"],
-        num_classes=int(ckpt.get("num_classes", 2)),
-        pretrained=True,
-        freeze=ckpt.get("freeze", "all_conv"),
-        dense_units=int(ckpt.get("dense_units", 64)),
-        dropout=float(ckpt.get("dropout", 0.5)),
-        input_size=int(ckpt.get("input_size", 224)),
-    )
-    model.head.load_state_dict(ckpt["head_state"])
-    return model.to(device).eval(), ckpt
+    """从 model.pt 复原模型（委托给 analysis.checkpoint：兼容全局池化存档的头部）。"""
+    from analysis.checkpoint import load_model
+
+    return load_model(run_dir, device=device)
 
 
 def resolve_path(cache_root, data_root, rel_path: str) -> Path:

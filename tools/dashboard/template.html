@@ -1,0 +1,790 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D 打印件缺陷检测 · 迁移学习复现看板</title>
+<style>
+:root{
+  --paper:#F7F2E7; --card:#FCF8F0; --ink:#16233A; --ink2:#3B485D; --muted:#7C8797;
+  --rule:#D6CCB8; --rule2:#E8E0CE; --accent:#BF452C; --good:#2A6B57; --navh:54px;
+  --serif:Georgia,"Songti SC","Times New Roman",serif;
+  --sans:"Segoe UI","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.62 var(--sans);
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px}
+.nw{white-space:nowrap}
+
+/* ---------- masthead ---------- */
+.masthead{padding:56px 0 0;border-bottom:1px solid var(--rule)}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.eyebrow b{color:var(--accent);font-weight:600}
+.mhead{display:flex;align-items:flex-end;justify-content:space-between;gap:32px;margin:18px 0 14px}
+h1{font:400 clamp(30px,4.4vw,46px)/1.12 var(--serif);margin:0;letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--accent)}
+.meta{font-size:11.5px;line-height:1.9;color:var(--muted);text-align:right;white-space:nowrap}
+.meta code{font-family:Consolas,monospace;font-size:11px;color:var(--ink2)}
+.lede{max-width:74ch;color:var(--ink2);font-size:14.5px;margin:0 0 30px}
+.lede b{font-weight:600;color:var(--ink)}
+
+.tape{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--rule)}
+.tape div{padding:18px 20px 20px 0;border-right:1px solid var(--rule2)}
+.tape div:last-child{border-right:0}
+.tape .k{font:400 30px/1 var(--serif);letter-spacing:-.02em}
+.tape .k small{font:400 13px var(--sans);color:var(--muted);margin-left:4px}
+.tape .l{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+
+/* ---------- nav ---------- */
+nav{position:sticky;top:0;z-index:20;background:rgba(247,242,231,.94);
+  backdrop-filter:blur(6px);border-bottom:1px solid var(--rule)}
+nav .wrap{display:flex;gap:26px;overflow-x:auto;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav a{display:flex;align-items:center;gap:7px;height:var(--navh);text-decoration:none;
+  font-size:12.5px;color:var(--ink2);white-space:nowrap;border-bottom:2px solid transparent}
+nav a i{font-style:normal;font-size:10px;color:var(--muted);letter-spacing:.06em}
+nav a:hover{color:var(--ink)}
+nav a.on{color:var(--ink);border-bottom-color:var(--accent)}
+nav a.on i{color:var(--accent)}
+
+/* ---------- sections ---------- */
+section{padding:60px 0;border-bottom:1px solid var(--rule);scroll-margin-top:var(--navh)}
+.shead{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:6px}
+h2{font:400 27px/1.2 var(--serif);margin:0;display:flex;align-items:baseline;gap:12px}
+h2 span{font:400 11px var(--sans);letter-spacing:.14em;color:var(--accent)}
+.shead .hint{font-size:12px;color:var(--muted);text-align:right;max-width:46ch}
+.sub{color:var(--ink2);font-size:13px;margin:8px 0 26px;max-width:88ch}
+.sub b{font-weight:600}
+
+/* ---------- controls ---------- */
+.controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
+.chips{display:flex;gap:0;border:1px solid var(--rule);border-radius:999px;overflow:hidden}
+.chip{appearance:none;border:0;background:transparent;padding:6px 14px;font:500 12px var(--sans);
+  color:var(--ink2);cursor:pointer;border-right:1px solid var(--rule2)}
+.chip:last-child{border-right:0}
+.chip:hover{background:rgba(22,35,58,.05)}
+.chip.on{background:var(--ink);color:var(--paper)}
+.search{appearance:none;border:1px solid var(--rule);background:var(--card);border-radius:999px;
+  padding:7px 14px;font:13px var(--sans);color:var(--ink);min-width:190px}
+.search:focus{outline:2px solid rgba(191,69,44,.35);outline-offset:1px}
+.count{font-size:11.5px;color:var(--muted);margin-left:auto;letter-spacing:.02em}
+
+/* ---------- table ---------- */
+.tblwrap{overflow-x:auto;border-top:1.5px solid var(--ink)}
+.tblwrap table{border-collapse:collapse;width:100%;min-width:840px}
+thead th{font:600 10.5px var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--muted);
+  text-align:right;padding:11px 10px;border-bottom:1px solid var(--rule);white-space:nowrap;
+  cursor:pointer;user-select:none;position:relative}
+thead th:first-child{text-align:left}
+thead th:hover{color:var(--ink)}
+thead th.sorted{color:var(--ink)}
+thead th.sorted::after{content:"▾";font-size:9px;margin-left:5px;color:var(--accent)}
+thead th.sorted.asc::after{content:"▴"}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--rule2);text-align:right;
+  font-variant-numeric:tabular-nums;font-size:13px;white-space:nowrap}
+tbody td:first-child{text-align:left;color:var(--muted);font-size:11px;width:34px}
+tbody td.model{text-align:left;font-weight:600;font-size:13px}
+tbody td.ds, tbody td.opt{text-align:left;color:var(--ink2);font-size:12px}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:rgba(22,35,58,.045)}
+tbody tr.sel{background:rgba(191,69,44,.07)}
+tbody tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.pos{color:var(--good)}
+.neg{color:var(--accent)}
+.dim{color:var(--muted)}
+
+/* ---------- heatmap ---------- */
+.hm{display:grid;gap:3px;font-size:12.5px}
+.hm .hcell{display:flex;align-items:center;justify-content:space-between;padding:2px 8px;min-height:44px}
+.hm .hhead{font:600 10.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+  padding:2px 8px;min-height:auto;justify-content:flex-start}
+.hm .hrow{font-size:12.5px;font-weight:600;padding:2px 10px 2px 0;display:flex;align-items:center}
+.hm button.cell{appearance:none;border:0;cursor:pointer;font:500 12.5px var(--sans);
+  font-variant-numeric:tabular-nums;text-align:left;transition:transform .08s}
+.hm button.cell:hover{outline:2px solid var(--ink);outline-offset:-2px}
+.hm .hcell.na{background:transparent;border:1px dashed var(--rule);color:var(--muted);justify-content:center}
+.matrix{display:grid;grid-template-columns:minmax(0,680px) minmax(0,1fr);gap:48px;align-items:start}
+.readout{border-top:1.5px solid var(--ink);padding-top:6px}
+.readout .item{display:flex;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--rule2)}
+.readout .n{font:400 27px/1 var(--serif);min-width:78px;letter-spacing:-.01em}
+.readout .n small{font:400 12px var(--sans);color:var(--muted);margin-left:3px}
+.readout .t{font-size:12.5px;color:var(--ink2);line-height:1.55}
+.readout .t b{color:var(--ink);font-weight:600}
+
+/* ---------- charts ---------- */
+.chart{width:100%;height:auto;display:block;overflow:visible}
+.legend{display:flex;flex-wrap:wrap;gap:18px;font-size:11.5px;color:var(--ink2);margin:0 0 10px 0}
+.legend span{display:flex;align-items:center;gap:7px}
+.swatch{width:11px;height:11px;border-radius:2px;display:inline-block}
+.dotsq{width:9px;height:9px;border-radius:50%;display:inline-block}
+.axis{font:11px var(--sans);fill:var(--muted)}
+.axislab{font:11px var(--sans);fill:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.grid{stroke:var(--rule2);stroke-width:1}
+.zeroline{stroke:var(--ink);stroke-width:1.2}
+
+/* ---------- detail ---------- */
+.detail-grid{display:grid;grid-template-columns:300px 1fr;gap:36px;margin-top:8px}
+.dhead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+.dhead h3{font:400 24px var(--serif);margin:0}
+.tag{font:600 10.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;
+  border:1px solid var(--rule);border-radius:3px;padding:2px 7px;color:var(--ink2)}
+.cm{border-collapse:collapse;width:100%;min-width:0;table-layout:fixed;font-variant-numeric:tabular-nums}
+.cm th{font:600 9px var(--sans);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);
+  padding:6px 3px;text-align:center;font-weight:600;white-space:normal;line-height:1.3;word-break:break-word}
+.cm th.row{text-align:right;padding-right:6px;font-size:8.5px}
+.cm td{text-align:center;padding:16px 3px;border:1px solid var(--paper);font-size:15px}
+.cmc{font-size:10px;color:var(--muted);letter-spacing:.04em;margin-bottom:6px}
+.cmnote{font-size:11.5px;color:var(--muted);margin-top:8px}
+.mgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px 18px}
+.mitem .mk{font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mitem .mv{font:400 20px var(--serif);font-variant-numeric:tabular-nums;line-height:1.25}
+.mbar{height:2px;background:var(--rule2);margin-top:6px;position:relative}
+.mbar i{position:absolute;left:0;top:0;bottom:0;background:var(--ink)}
+.curves{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:26px}
+
+/* ---------- notes ---------- */
+.notes{margin:26px 0 0;padding:16px 18px;background:var(--card);border-left:2px solid var(--accent)}
+.notes p{margin:0 0 8px;font-size:12.5px;color:var(--ink2)}
+.notes p:last-child{margin:0}
+.notes b{color:var(--ink)}
+
+footer{padding:34px 0 60px;font-size:11.5px;color:var(--muted)}
+footer .row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer code{font-family:Consolas,monospace}
+
+@media (max-width:900px){
+  .wrap{padding:0 18px}
+  .masthead{padding-top:36px}
+  .mhead{flex-direction:column;align-items:flex-start;gap:10px}
+  .meta{text-align:left;white-space:normal}
+  .tape{grid-template-columns:1fr}
+  .tape div{display:flex;align-items:baseline;gap:16px;padding:11px 0;border-right:0;
+    border-bottom:1px solid var(--rule2)}
+  .tape .k{font-size:24px;min-width:104px}
+  .tape .l{margin-top:0;font-size:10.5px}
+  .shead{flex-direction:column;align-items:flex-start;gap:6px}
+  .shead .hint{text-align:left}
+  .count{margin-left:0;width:100%}
+  .detail-grid{grid-template-columns:1fr;gap:24px}
+  .mgrid{grid-template-columns:repeat(3,1fr)}
+  .curves{grid-template-columns:1fr}
+  .hm .hrow{font-size:11px}
+  .matrix{grid-template-columns:1fr;gap:26px}
+  .tblwrap{overflow:visible}
+  .tblwrap table{min-width:0}
+  thead th:nth-child(3),thead th:nth-child(6),thead th:nth-child(7),
+  thead th:nth-child(8),thead th:nth-child(9),
+  tbody td:nth-child(3),tbody td:nth-child(6),tbody td:nth-child(7),
+  tbody td:nth-child(8),tbody td:nth-child(9){display:none}
+  tbody td,thead th{padding-left:6px;padding-right:6px}
+  tbody td.model{font-size:12px}
+  #ablChart,#effChart,#gapChart{overflow-x:auto;padding-bottom:4px}
+  #ablChart svg,#effChart svg,#gapChart svg{min-width:720px}
+  .curves>div{overflow-x:auto}
+  .curves svg{min-width:430px}
+}
+</style>
+</head>
+<body>
+
+<header class="masthead"><div class="wrap">
+  <div class="eyebrow">IDAT7215 · Group Project · Topic 4 <b>— 2026/27 Semester 1</b></div>
+  <div class="mhead">
+    <h1>3D 打印件缺陷检测<br><em>迁移学习复现看板</em></h1>
+    <div class="meta">
+      reproducing Ahsan et al. (2024)<br>
+      <i>Expert Systems with Applications</i> 253:124293<br>
+      <code>github.com/Zheyi-D/am-defect-tl</code>
+    </div>
+  </div>
+  <p class="lede">
+    11 个 ImageNet 预训练骨干 × 3 种优化器 × 2 个数据集，冻结卷积、只训练论文同款<span class="nw">分类头</span>。
+    本页所有数字直接读自 <b>results/leaderboard.csv</b> 与每个 run 的 <b>metrics.json / confusion_matrices.json / train_log.csv</b>，
+    未做二次计算。作者报告的数值单独标注，不混入我们的结果。
+  </p>
+  <div class="tape" id="tape"></div>
+</div></header>
+
+<nav id="nav"><div class="wrap">
+  <a href="#board"><i>01</i>排名</a>
+  <a href="#matrix"><i>02</i>模型 × 数据集</a>
+  <a href="#ablation"><i>03</i>优化器消融</a>
+  <a href="#efficiency"><i>04</i>效率</a>
+  <a href="#gap"><i>05</i>复现差距</a>
+  <a href="#detail"><i>06</i>单 run 详情</a>
+</div></nav>
+
+<main>
+<!-- ============ 01 ============ -->
+<section id="board"><div class="wrap">
+  <div class="shead">
+    <h2><span>01</span>Leaderboard</h2>
+    <div class="hint">点任意一行 → 下方展开该 run 的混淆矩阵与训练曲线</div>
+  </div>
+  <p class="sub">按测试集表现排序。ΔAcc 是<b>我们 − 作者报告</b>，只用于定位差异，不代表谁更优——作者的 EfficientNet 三行 F1 = 0，说明那组实验没收敛。</p>
+  <div class="controls">
+    <div class="chips" id="dsChips"></div>
+    <div class="chips" id="optChips"></div>
+    <input class="search" id="q" type="search" placeholder="搜索模型…" autocomplete="off">
+    <div class="count" id="count"></div>
+  </div>
+  <div class="tblwrap">
+    <table>
+      <thead><tr>
+        <th data-k="idx">#</th>
+        <th data-k="model" style="text-align:left">模型</th>
+        <th data-k="dataset" style="text-align:left">数据</th>
+        <th data-k="opt" style="text-align:left">优化器</th>
+        <th data-k="acc">Test Acc</th>
+        <th data-k="f1">F1</th>
+        <th data-k="mcc">MCC</th>
+        <th data-k="params">可训练参数</th>
+        <th data-k="time">训练时长</th>
+        <th data-k="delta">ΔAcc</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </div>
+</div></section>
+
+<!-- ============ 02 ============ -->
+<section id="matrix"><div class="wrap">
+  <div class="shead">
+    <h2><span>02</span>模型 × 数据集</h2>
+    <div class="hint">同一骨干在两个数据集上的测试准确率；色阶按当前视图的最低–最高值拉伸</div>
+  </div>
+  <p class="sub">D1 是 271 张原图（5184×3456 下采样到 224），D2 是作者提供的 3017 张增强图（128 上采样到 224）。两个数据集的难度不可直接比较。</p>
+  <div class="controls"><div class="chips" id="matChips"></div>
+    <div class="count" id="matCount"></div></div>
+  <div class="matrix">
+    <div class="hm" id="heat"></div>
+    <aside class="readout" id="matRead"></aside>
+  </div>
+</div></section>
+
+<!-- ============ 03 ============ -->
+<section id="ablation"><div class="wrap">
+  <div class="shead">
+    <h2><span>03</span>优化器消融</h2>
+    <div class="hint">同一模型换优化器，测试准确率变化</div>
+  </div>
+  <p class="sub">Adam / SGD / RMSprop 各跑同一套冻结策略与学习率（1e-3）。横条 = 三种优化器之间测试准确率的最大差值（百分点），右侧同时给出区间与最差的那个优化器。条为 0 表示该模型对优化器完全不敏感。</p>
+  <div class="controls"><div class="chips" id="ablChips"></div></div>
+  <div class="legend" id="ablLegend"></div>
+  <div id="ablChart"></div>
+</div></section>
+
+<!-- ============ 04 ============ -->
+<section id="efficiency"><div class="wrap">
+  <div class="shead">
+    <h2><span>04</span>效率</h2>
+    <div class="hint">训练时长（对数轴）× 测试准确率；点越大可训练参数越多</div>
+  </div>
+  <p class="sub">横轴是单个 run 的训练时长（30 秒到 15 分钟，对数轴）。右上角是"又准又快"，右下角是"慢且不划算"。冻结卷积后只训练分类头，可训练参数反映的是特征维度而不是骨干体量。</p>
+  <div class="legend" id="effLegend"></div>
+  <div id="effChart"></div>
+</div></section>
+
+<!-- ============ 05 ============ -->
+<section id="gap"><div class="wrap">
+  <div class="shead">
+    <h2><span>05</span>复现差距</h2>
+    <div class="hint">实心 = 我们的结果，空心 = 作者报告</div>
+  </div>
+  <p class="sub">作者第三个数据集（1557 张）未公开，99 个实验单元里我们复现 66 个；图中只比较有公开数据的 D1 / D2。</p>
+  <div class="controls"><div class="chips" id="gapChips"></div></div>
+  <div class="legend" id="gapLegend"></div>
+  <div id="gapChart"></div>
+  <div class="notes" id="gapNotes"></div>
+</div></section>
+
+<!-- ============ 06 ============ -->
+<section id="detail" style="border-bottom:0"><div class="wrap">
+  <div class="shead">
+    <h2><span>06</span>单 run 详情</h2>
+    <div class="hint">从 01 的表格里点一行即可切换</div>
+  </div>
+  <div class="dhead" id="dhead"></div>
+  <div id="dbody"></div>
+</div></section>
+</main>
+
+<footer><div class="wrap row">
+  <div>数据源：<code>results/leaderboard.csv</code> · <code>results/runs/*/metrics.json</code> · <code>confusion_matrices.json</code> · <code>train_log.csv</code></div>
+  <div>生成：<code>python tools/build_dashboard.py</code> · <span id="gen"></span></div>
+</div></footer>
+
+<script>
+const DATA = __DATA_JSON__;
+</script>
+<script>
+"use strict";
+const RUNS = DATA.runs;
+const BY_ID = new Map(RUNS.map(r => [r.id, r]));
+const MODELS = DATA.models.slice();
+const OPTS = ["adam", "sgd", "rmsprop"];
+
+const PRETTY = {
+  vgg16: "VGG16", vgg19: "VGG19", resnet50: "ResNet50", resnet101: "ResNet101",
+  inception_resnet_v2: "InceptionResNetV2", xception: "Xception",
+  mobilenet_v2: "MobileNetV2", efficientnet_b0: "EfficientNet-B0",
+  efficientnet_b7: "EfficientNet-B7", efficientnet_v2m: "EfficientNetV2-M",
+  nasnet_large: "NASNet-Large"
+};
+const disp = m => PRETTY[m] || m;
+const OPT_LABEL = { adam: "Adam", sgd: "SGD", rmsprop: "RMSprop" };
+
+const S = { ds: "D1", opt: "all", q: "", key: "acc", dir: -1, sel: null,
+            matOpt: "adam", ablDs: "D1", gapDs: "D1" };
+
+const num = v => (v == null || Number.isNaN(v)) ? "—" : v.toFixed(3);
+const int = v => v == null ? "—" : Math.round(v).toLocaleString("en-US");
+const secs = v => v == null ? "—" : (v >= 60 ? (v / 60).toFixed(1) + " min" : v.toFixed(1) + " s");
+const signed = v => (v == null) ? "—" : (v > 0 ? "+" : "") + v.toFixed(3);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- colour helpers ---------- */
+const hex2rgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+function mix(a, b, t) {
+  const A = hex2rgb(a), B = hex2rgb(b);
+  return `rgb(${A.map((v, i) => Math.round(v + (B[i] - v) * t)).join(",")})`;
+}
+function heat(v, lo, hi) {
+  if (v == null) return { bg: "transparent", fg: "var(--muted)" };
+  const span = (hi - lo) || 1;
+  const t = Math.max(0, Math.min(1, (v - lo) / span));
+  const bg = t < .6 ? mix("#F0E8D6", "#71839A", t / .6) : mix("#71839A", "#1B2C47", (t - .6) / .4);
+  return { bg, fg: t > .48 ? "#F7F2E7" : "#16233A" };
+}
+
+/* ---------- tape ---------- */
+(function tape() {
+  const best = RUNS.reduce((a, b) => ((a.acc.test || 0) >= (b.acc.test || 0) ? a : b));
+  const nD1 = RUNS.filter(r => r.dataset === "D1").length;
+  const nD2 = RUNS.filter(r => r.dataset === "D2").length;
+  document.getElementById("tape").innerHTML = `
+    <div><div class="k">${DATA.n_runs}</div><div class="l">runs 已跑完</div></div>
+    <div><div class="k">${MODELS.length}</div><div class="l">ImageNet 骨干</div></div>
+    <div><div class="k">${nD1} <small>+ ${nD2}</small></div><div class="l">D1 · D2 runs</div></div>
+    <div><div class="k">${num(best.acc.test)}</div>
+      <div class="l">最高测试准确率 · <span style="text-transform:none">${disp(best.model)} / ${OPT_LABEL[best.opt]}</span></div></div>`;
+  document.getElementById("gen").textContent = "生成于 " + DATA.generated;
+})();
+
+/* ---------- chips ---------- */
+function chipGroup(el, items, active, onPick) {
+  el.innerHTML = items.map(([val, label]) =>
+    `<button class="chip${val === active ? " on" : ""}" data-v="${esc(val)}">${esc(label)}</button>`).join("");
+  el.querySelectorAll(".chip").forEach(b => b.onclick = () => onPick(b.dataset.v));
+}
+chipGroup(document.getElementById("dsChips"),
+  [["D1", "D1"], ["D2", "D2"], ["all", "全部"]], S.ds,
+  v => { S.ds = v; paintChips(); renderBoard(); });
+chipGroup(document.getElementById("optChips"),
+  [["all", "全部优化器"], ["adam", "Adam"], ["sgd", "SGD"], ["rmsprop", "RMSprop"]], S.opt,
+  v => { S.opt = v; paintChips(); renderBoard(); });
+function paintChips() {
+  const groups = [[document.getElementById("dsChips"), S.ds], [document.getElementById("optChips"), S.opt]];
+  groups.forEach(([el, active]) => el.querySelectorAll(".chip").forEach(b =>
+    b.classList.toggle("on", b.dataset.v === active)));
+}
+document.getElementById("q").addEventListener("input", e => { S.q = e.target.value.trim().toLowerCase(); renderBoard(); });
+
+/* ---------- 01 leaderboard ---------- */
+const KEY = {
+  idx: r => 0, model: r => disp(r.model), dataset: r => r.dataset, opt: r => r.opt,
+  acc: r => r.acc.test, f1: r => r.test.f1, mcc: r => r.test.mcc,
+  params: r => r.params, time: r => r.time, delta: r => r.delta
+};
+function current() {
+  const q = S.q;
+  const rows = RUNS.filter(r =>
+    (S.ds === "all" || r.dataset === S.ds) &&
+    (S.opt === "all" || r.opt === S.opt) &&
+    (!q || disp(r.model).toLowerCase().includes(q) || r.id.includes(q)));
+  const k = KEY[S.key];
+  rows.sort((a, b) => disp(a.model).localeCompare(disp(b.model)) || a.opt.localeCompare(b.opt));
+  rows.sort((a, b) => {
+    const x = k(a), y = k(b);
+    if (x == null) return 1; if (y == null) return -1;
+    if (typeof x === "string") return x.localeCompare(y) * S.dir;
+    return (x - y) * S.dir;
+  });
+  return rows;
+}
+function renderBoard() {
+  const rows = current();
+  document.getElementById("rows").innerHTML = rows.map((r, i) => {
+    const d = r.delta;
+    const cls = d == null ? "dim" : (d > 0.0005 ? "pos" : d < -0.0005 ? "neg" : "dim");
+    return `<tr data-id="${r.id}" class="${S.sel === r.id ? "sel" : ""}">
+      <td>${String(i + 1).padStart(2, "0")}</td>
+      <td class="model">${disp(r.model)}</td>
+      <td class="ds">${r.dataset}</td>
+      <td class="opt">${OPT_LABEL[r.opt]}</td>
+      <td><b>${num(r.acc.test)}</b></td>
+      <td>${num(r.test.f1)}</td>
+      <td>${num(r.test.mcc)}</td>
+      <td>${int(r.params)}</td>
+      <td class="dim">${secs(r.time)}</td>
+      <td class="${cls}">${signed(d)}</td>
+    </tr>`;
+  }).join("");
+  document.querySelectorAll("#rows tr").forEach(tr => tr.onclick = () => {
+    S.sel = tr.dataset.id; renderBoard(); renderDetail();
+    document.getElementById("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const n = rows.length;
+  document.getElementById("count").textContent =
+    `显示 ${n} / ${RUNS.length} runs · ${S.ds === "all" ? "全部数据集" : S.ds}` +
+    `${S.opt === "all" ? "" : " · " + OPT_LABEL[S.opt]}` +
+    ` · 按 ${({ acc: "Test Acc", f1: "F1", mcc: "MCC", params: "参数量", time: "时长", delta: "ΔAcc", model: "模型名", dataset: "数据集", opt: "优化器", idx: "原始顺序" })[S.key]} ${S.dir < 0 ? "降序" : "升序"}`;
+  document.querySelectorAll("thead th").forEach(th => {
+    th.classList.toggle("sorted", th.dataset.k === S.key);
+    th.classList.toggle("asc", th.dataset.k === S.key && S.dir > 0);
+  });
+}
+document.querySelectorAll("thead th").forEach(th => th.onclick = () => {
+  const k = th.dataset.k;
+  if (S.key === k) S.dir *= -1; else { S.key = k; S.dir = (k === "model" || k === "dataset" || k === "opt" || k === "idx") ? 1 : -1; }
+  renderBoard();
+});
+
+/* ---------- 02 heatmap ---------- */
+chipGroup(document.getElementById("matChips"),
+  [["adam", "Adam"], ["sgd", "SGD"], ["rmsprop", "RMSprop"], ["best", "各模型最佳"]], S.matOpt,
+  v => { S.matOpt = v; document.querySelectorAll("#matChips .chip").forEach(b => b.classList.toggle("on", b.dataset.v === v)); renderHeat(); });
+
+function pickRun(model, ds) {
+  const pool = RUNS.filter(r => r.model === model && r.dataset === ds &&
+    (S.matOpt === "best" || r.opt === S.matOpt));
+  if (!pool.length) return null;
+  return pool.reduce((a, b) => ((a.acc.test || 0) >= (b.acc.test || 0) ? a : b));
+}
+function renderHeat() {
+  const rows = MODELS.map(m => ({ m, cells: DATA.datasets.map(d => pickRun(m, d)) }))
+    .sort((a, b) => ((b.cells[0] && b.cells[0].acc.test) || 0) - ((a.cells[0] && a.cells[0].acc.test) || 0));
+  const nOf = ds => {
+    const counts = {};
+    RUNS.filter(r => r.dataset === ds).forEach(r => counts[r.n_test] = (counts[r.n_test] || 0) + 1);
+    return +Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+  };
+  const vals = rows.flatMap(r => r.cells.filter(Boolean).map(c => c.acc.test)).filter(v => v != null);
+  const lo = Math.min(...vals), hi = Math.max(...vals);
+  let html = `<div></div>` + DATA.datasets.map(d =>
+    `<div class="hcell hhead">${d} <span style="margin-left:8px;letter-spacing:0;text-transform:none">n_test ≈ ${nOf(d)}</span></div>`).join("");
+  rows.forEach(({ m, cells }) => {
+    html += `<div class="hrow">${disp(m)}</div>`;
+    cells.forEach(r => {
+      if (!r) { html += `<div class="hcell na">未跑</div>`; return; }
+      const c = heat(r.acc.test, lo, hi);
+      html += `<button class="cell hcell" data-id="${r.id}"
+        style="background:${c.bg};color:${c.fg}"
+        title="${disp(r.model)} · ${r.dataset} · ${OPT_LABEL[r.opt]} · acc ${num(r.acc.test)}">
+        <span>${num(r.acc.test)}</span>${S.matOpt === "best" ? `<span style="opacity:.62;font-size:10.5px">${OPT_LABEL[r.opt]}</span>` : ""}</button>`;
+    });
+  });
+  const box = document.getElementById("heat");
+  box.style.gridTemplateColumns = `132px repeat(${DATA.datasets.length}, minmax(0,1fr))`;
+  box.innerHTML = html;
+  box.querySelectorAll("button.cell").forEach(b => b.onclick = () => {
+    S.sel = b.dataset.id; renderBoard(); renderDetail();
+    document.getElementById("detail").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+  const d1v = rows.map(r => r.cells[0]).filter(Boolean).map(c => c.acc.test);
+  const d2v = rows.map(r => r.cells[1]).filter(Boolean).map(c => c.acc.test);
+  const perfect = d1v.filter(v => v >= 0.9995).length;
+  const avg = a => a.reduce((x, y) => x + y, 0) / a.length;
+  const gapAvg = (avg(d2v) - avg(d1v)) * 100;
+  const worst = rows.flatMap(r => r.cells.filter(Boolean).map(c => ({ m: r.m, c })))
+    .reduce((a, b) => (b.c.acc.test < a.c.acc.test ? b : a));
+  document.getElementById("matRead").innerHTML = `
+    <div class="item"><div class="n">${perfect}<small>/ ${rows.length}</small></div>
+      <div class="t">个模型在 <b>D1</b> 上达到 1.000 —— 测试集只有 54 张，已经摸到样本量上限，
+      1.000 与 0.981 之间没有统计意义。</div></div>
+    <div class="item"><div class="n">${num(worst.c.acc.test)}</div>
+      <div class="t"><b>${disp(worst.m)}</b> 是当前视图里唯一明显掉队的：${worst.c.dataset} /
+      ${OPT_LABEL[worst.c.opt]}。其余模型都挤在 0.98 以上。</div></div>
+    <div class="item"><div class="n">${gapAvg > 0 ? "+" : "−"}${Math.abs(gapAvg).toFixed(1)}<small>pt</small></div>
+      <div class="t">同一批模型在 <b>D2</b> 上的平均准确率比 D1 ${gapAvg >= 0 ? "高" : "低"} ${Math.abs(gapAvg).toFixed(1)} 个点。
+      D2 是作者的增强图，与 D1 不是同一难度的任务，这个差值不能当成"训练更充分"的证据。</div></div>`;
+
+  document.getElementById("matCount").innerHTML =
+    (S.matOpt === "best" ? "每个模型取三个优化器里最好的一次" : `只显示 ${OPT_LABEL[S.matOpt]} 的结果`) +
+    `<span style="display:inline-flex;align-items:center;gap:8px;margin-left:16px">
+      <span style="font-variant-numeric:tabular-nums">${lo.toFixed(3)}</span>
+      <span style="display:inline-block;width:92px;height:8px;border-radius:1px;background:linear-gradient(90deg,${heat(lo, lo, hi).bg},${heat((lo + hi) / 2, lo, hi).bg},${heat(hi, lo, hi).bg})"></span>
+      <span style="font-variant-numeric:tabular-nums">${hi.toFixed(3)}</span></span>`;
+}
+
+/* ---------- svg helpers ---------- */
+function svgWrap(w, h, inner) {
+  return `<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" preserveAspectRatio="xMidYMid meet">${inner}</svg>`;
+}
+function yAxis(ticks, x, y, w) {
+  return ticks.map(t => `<line class="grid" x1="${x}" x2="${x + w}" y1="${y(t)}" y2="${y(t)}"/>
+    <text class="axis" x="${x - 8}" y="${y(t) + 4}" text-anchor="end">${t.toFixed(2).slice(1)}</text>`).join("");
+}
+
+/* ---------- 03 ablation ---------- */
+chipGroup(document.getElementById("ablChips"),
+  [["D1", "D1"], ["D2", "D2"]], S.ablDs,
+  v => { S.ablDs = v; document.querySelectorAll("#ablChips .chip").forEach(b => b.classList.toggle("on", b.dataset.v === v)); renderAbl(); });
+
+const OPT_COLOR = { adam: "#16233A", sgd: "#7B8A9C", rmsprop: "#BF452C" };
+function renderAbl() {
+  document.getElementById("ablLegend").innerHTML =
+    `<span style="color:var(--muted)">数据集 ${S.ablDs} · 条长 = Adam / SGD / RMSprop 之间的最大准确率差 · 右侧注明区间与最差的那个优化器</span>`;
+  const rows = MODELS.map(m => {
+    const runs = OPTS.map(o => RUNS.find(x => x.model === m && x.dataset === S.ablDs && x.opt === o)).filter(Boolean);
+    const vals = runs.map(r => r.acc.test).filter(v => v != null);
+    if (!vals.length) return null;
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    const worst = runs.reduce((a, b) => ((a.acc.test ?? 1) <= (b.acc.test ?? 1) ? a : b));
+    return { m, spread: hi - lo, lo, hi, n: vals.length, worst };
+  }).filter(Boolean).sort((a, b) => b.spread - a.spread);
+
+  const W = 1080, rowH = 31, L = 150, R = 190, T = 34, H = T + rowH * rows.length + 22;
+  const iw = W - L - R;
+  const maxSpread = Math.max(0.01, ...rows.map(r => r.spread));
+  const x = v => L + iw * Math.min(1, v / maxSpread);
+  let g = "";
+  const step = maxSpread > 0.05 ? 0.02 : maxSpread > 0.02 ? 0.01 : 0.005;
+  for (let t = 0; t <= maxSpread + 1e-9; t += step) {
+    g += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${T - 12}" y2="${H - 18}"/>
+      <text class="axis" x="${x(t)}" y="${H - 4}" text-anchor="middle">${(t * 100).toFixed(1)}</text>`;
+  }
+  rows.forEach((r, i) => {
+    const cy = T + rowH * i;
+    const zero = r.spread < 0.0005;
+    g += `<text x="${L - 14}" y="${cy + 4}" text-anchor="end" class="axis"
+      style="fill:var(--ink);font-size:12px">${disp(r.m)}</text>`;
+    if (!zero) {
+      g += `<rect x="${L}" y="${cy - 5}" width="${Math.max(2, x(r.spread) - L).toFixed(1)}" height="10"
+        fill="#16233A" fill-opacity=".82">
+        <title>${disp(r.m)} · ${r.lo.toFixed(3)} – ${r.hi.toFixed(3)} · 最差 ${OPT_LABEL[r.worst.opt]}</title></rect>`;
+    } else {
+      g += `<line x1="${L}" x2="${L + 3}" y1="${cy}" y2="${cy}" stroke="#7C8797" stroke-width="2"/>`;
+    }
+    g += `<text x="${W - 118}" y="${cy + 4}" text-anchor="end" class="axis" style="fill:var(--ink2)">${r.lo.toFixed(3)} – ${r.hi.toFixed(3)}</text>`;
+    g += `<text x="${W - 6}" y="${cy + 4}" text-anchor="end" class="axis"
+      style="fill:${zero ? "var(--muted)" : "var(--ink2)"}">${zero ? "不敏感" : "最差 " + OPT_LABEL[r.worst.opt]}</text>`;
+  });
+  g += `<text class="axislab" x="${L}" y="${T - 22}">准确率差值（百分点）</text>`;
+  document.getElementById("ablChart").innerHTML = svgWrap(W, H + 6, g);
+}
+
+/* ---------- 04 efficiency ---------- */
+function renderEff() {
+  document.getElementById("effLegend").innerHTML =
+    DATA.datasets.map(d => `<span><i class="dotsq" style="background:${d === "D1" ? "#16233A" : "#BF452C"}"></i>${d}</span>`).join("")
+    + `<span style="color:var(--muted)">圆点面积 = 可训练参数量 · 悬停看 run</span>`;
+  const W = 1080, H = 400, L = 66, R = 24, T = 26, B = 54;
+  const iw = W - L - R, ih = H - T - B;
+  const ts = RUNS.map(r => r.time).filter(v => v > 0);
+  const tmin = Math.log10(Math.min(...ts) * 0.9), tmax = Math.log10(Math.max(...ts) * 1.1);
+  const x = v => L + iw * (Math.log10(v) - tmin) / (tmax - tmin);
+  const lo = 0.88, hi = 1.005;
+  const y = v => T + ih * (1 - (Math.max(lo, Math.min(hi, v)) - lo) / (hi - lo));
+  const pmax = Math.max(...RUNS.map(r => r.params || 0));
+  let g = "";
+  [0.90, 0.95, 1.00].forEach(t => {
+    g += `<line class="grid" x1="${L}" x2="${L + iw}" y1="${y(t)}" y2="${y(t)}"/>
+      <text class="axis" x="${L - 8}" y="${y(t) + 4}" text-anchor="end">${t.toFixed(2)}</text>`;
+  });
+  [30, 60, 120, 300, 600, 900].filter(v => Math.log10(v) >= tmin && Math.log10(v) <= tmax).forEach(t => {
+    g += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${T}" y2="${T + ih}"/>
+      <text class="axis" x="${x(t)}" y="${H - B + 18}" text-anchor="middle">${t < 60 ? t + "s" : (t / 60) + "m"}</text>`;
+  });
+  RUNS.slice().sort((a, b) => (b.params || 0) - (a.params || 0)).forEach(r => {
+    if (!r.time || r.acc.test == null) return;
+    const rad = 3.6 + 6 * Math.sqrt((r.params || 0) / pmax);
+    const col = r.dataset === "D1" ? "#16233A" : "#BF452C";
+    g += `<circle cx="${x(r.time).toFixed(1)}" cy="${y(r.acc.test).toFixed(1)}" r="${rad.toFixed(1)}"
+      fill="${col}" fill-opacity=".5" stroke="${col}" stroke-width=".8">
+      <title>${disp(r.model)} · ${r.dataset}/${OPT_LABEL[r.opt]} · acc ${num(r.acc.test)} · ${int(r.params)} params · ${secs(r.time)}</title></circle>`;
+  });
+  g += `<text class="axislab" x="${L}" y="${H - 14}">TRAIN TIME (LOG)</text>`;
+  g += `<text class="axislab" x="0" y="${T - 10}">TEST ACC</text>`;
+  document.getElementById("effChart").innerHTML = svgWrap(W, H, g);
+}
+
+
+/* ---------- 05 gap ---------- */
+chipGroup(document.getElementById("gapChips"),
+  [["D1", "D1"], ["D2", "D2"]], S.gapDs,
+  v => { S.gapDs = v; document.querySelectorAll("#gapChips .chip").forEach(b => b.classList.toggle("on", b.dataset.v === v)); renderGap(); });
+
+function renderGap() {
+  document.getElementById("gapLegend").innerHTML =
+    `<span><i class="dotsq" style="background:#16233A"></i>我们的结果（PyTorch）</span>
+     <span><i class="dotsq" style="border:1.5px solid #BF452C;background:transparent"></i>作者报告（Keras, xlsx）</span>
+     <span style="color:var(--muted)">${S.gapDs} · 按差值排序</span>`;
+  const rows = MODELS.map(m => {
+    const ours = RUNS.filter(r => r.model === m && r.dataset === S.gapDs)
+      .reduce((a, b) => (!a || (b.acc.test || 0) > (a.acc.test || 0) ? b : a), null);
+    return { m, ours, paper: ours ? ours.paper_acc : null, paperF1: ours ? ours.paper_f1 : null };
+  }).filter(r => r.ours).sort((a, b) => ((b.paper ?? 1) - (b.ours.acc.test || 0)) - ((a.paper ?? 1) - (a.ours.acc.test || 0)));
+
+  const W = 1080, rowH = 34, L = 190, R = 96, T = 26, H = T + rowH * rows.length + 26, iw = W - L - R;
+  const x = v => L + iw * (v - 0.45) / (1.02 - 0.45);
+  let g = "";
+  [0.5, 0.6, 0.7, 0.8, 0.9, 1.0].forEach(t => {
+    g += `<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="${T}" y2="${H - 26}"/>
+          <text class="axis" x="${x(t)}" y="${H - 8}" text-anchor="middle">${t.toFixed(2).slice(1)}</text>`;
+  });
+  rows.forEach((r, i) => {
+    const cy = T + rowH * i + rowH / 2;
+    const ov = r.ours.acc.test, pv = r.paper;
+    g += `<text x="${L - 14}" y="${cy + 4}" text-anchor="end" class="axis" style="fill:var(--ink);font-size:12px">${disp(r.m)}</text>`;
+    if (pv != null) {
+      g += `<line x1="${x(Math.min(ov, pv))}" x2="${x(Math.max(ov, pv))}" y1="${cy}" y2="${cy}"
+        stroke="${ov >= pv ? "#2A6B57" : "#BF452C"}" stroke-width="1.4" stroke-opacity=".55"/>`;
+    }
+    g += `<circle cx="${x(ov)}" cy="${cy}" r="5.2" fill="#16233A"/>`;
+    if (pv != null) {
+      g += `<circle cx="${x(pv)}" cy="${cy}" r="${Math.abs(ov - pv) < .002 ? 7.4 : 4.8}"
+        fill="none" stroke="#BF452C" stroke-width="1.6"/>`;
+    }
+    const d = pv == null ? null : ov - pv;
+    g += `<text x="${W - 12}" y="${cy + 4}" text-anchor="end" class="axis"
+      style="fill:${d == null ? "var(--muted)" : d >= 0 ? "var(--good)" : "var(--accent)"}">${d == null ? "—" : signed(d)}</text>`;
+    if (pv == null) g += `<text x="${W - 52}" y="${cy + 4}" text-anchor="end" class="axis" style="fill:var(--muted);font-size:10px">not reported</text>`;
+  });
+  document.getElementById("gapChart").innerHTML = svgWrap(W, Math.max(160, H), g);
+
+  const collapsed = rows.filter(r => r.paperF1 === 0);
+  document.getElementById("gapNotes").innerHTML = `
+    <p><b>为什么有三行 +0.49：</b>作者仓库 xlsx 里 EfficientNet-B0 / B7 / V2-M 的测试 F1 = 0，
+    precision = recall = 0，accuracy = 0.4909 —— 即全部预测成 nondefect 的多数类基线。
+    这三行不能读作"我们领先 49 个点"，应读作"作者的该组实验未收敛，我们的复现正常收敛"。</p>
+    <p><b>D1 的样本量：</b>测试集 54–55 张，错 1 张就是 1.8 个百分点。表中 1.000 与 0.981 的差距在这个规模下不具统计意义。</p>
+    <p><b>差异来源（报告 Discussion 可用）：</b>作者未公开随机划分与 seed、Keras 与 PyTorch 的预处理/权重初始化差异、作者没有发布训练好的权重。
+    ${collapsed.length ? `本数据集中有 ${collapsed.length} 个模型属于作者侧未收敛。` : ""}</p>`;
+}
+
+/* ---------- 06 detail ---------- */
+function renderDetail() {
+  let r = S.sel ? BY_ID.get(S.sel) : null;
+  if (!r) r = RUNS.filter(x => x.dataset === "D1").sort((a, b) => (b.acc.test || 0) - (a.acc.test || 0))[0];
+  const head = document.getElementById("dhead");
+  head.innerHTML = `<h3>${disp(r.model)}</h3>
+    <span class="tag">${r.dataset}</span><span class="tag">${OPT_LABEL[r.opt]}</span>
+    <span class="tag">seed ${r.seed}</span><span class="tag">${r.device || "cpu"}</span>
+    <code style="font-size:11px;color:var(--muted);margin-left:auto">${r.id}</code>`;
+
+  const cm = r.cm_test;
+  let cmHtml = "";
+  if (cm) {
+    const [[tn, fp], [fn, tp]] = cm;
+    const maxv = Math.max(tn, fp, fn, tp);
+    const shade = v => `background:${mix("#FCF8F0", "#16233A", Math.min(.85, Math.sqrt(v / maxv) * .8))};
+      color:${v / maxv > .45 ? "#F7F2E7" : "var(--ink)"}`;
+    cmHtml = `<div class="cmc">列 = 预测 ↓ 行 = 真实</div>
+    <table class="cm">
+      <tr><th class="row"></th><th>pred<br>nondef</th><th>pred<br>defect</th></tr>
+      <tr><th class="row">true nondef</th><td style="${shade(tn)}">${tn}</td><td style="${shade(fp)}">${fp}</td></tr>
+      <tr><th class="row">true defect</th><td style="${shade(fn)}">${fn}</td><td style="${shade(tp)}">${tp}</td></tr>
+    </table>
+    <div class="cmnote">测试集 n = ${tn + fp + fn + tp}，正确 ${tn + tp}，错 ${fp + fn}。</div>`;
+  } else cmHtml = `<div class="cmnote">该 run 没有 confusion_matrices.json</div>`;
+
+  const mk = [["accuracy", "Accuracy"], ["precision", "Precision"], ["recall", "Recall"],
+    ["f1", "F1"], ["mcc", "MCC"], ["kappa", "Kappa"], ["auc", "AUC"], ["map", "mAP"],
+    ["sensitivity", "Sensitivity"], ["specificity", "Specificity"]];
+  const mg = mk.map(([k, label]) => {
+    const v = r.test[k];
+    return `<div class="mitem"><div class="mk">${label}</div>
+      <div class="mv">${num(v)}</div>
+      <div class="mbar"><i style="width:${((v || 0) * 100).toFixed(1)}%"></i></div></div>`;
+  }).join("");
+
+  const c = r.curve;
+  const curveAcc = lineChart(c.ep, [
+    { name: "train", color: "#16233A", vals: c.tr_acc, dash: "" },
+    { name: "val", color: "#BF452C", vals: c.va_acc, dash: "4 3" }
+  ], { h: 150, ymin: 0.4, ymax: 1.02, ticks: [0.4, 0.7, 1.0], label: "ACCURACY" });
+  const curveLoss = lineChart(c.ep, [
+    { name: "train", color: "#16233A", vals: c.tr_loss, dash: "" },
+    { name: "val", color: "#BF452C", vals: c.va_loss, dash: "4 3" }
+  ], { h: 150, ticks: null, label: "LOSS" });
+
+  document.getElementById("dbody").innerHTML = `
+    <div class="detail-grid">
+      <div>
+        <div class="mk" style="font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Test confusion matrix</div>
+        ${cmHtml}
+        <div class="cmnote" style="margin-top:14px">
+          n_train ${r.n_train ?? "—"} · n_val ${r.n_val ?? "—"} · n_test ${r.n_test ?? "—"}<br>
+          可训练参数 ${int(r.params)} / 全部 ${int(r.params_total)}<br>
+          训练 ${secs(r.time)} · 输入 ${r.input_size ?? "—"}px · 冻结 ${r.freeze || "—"}
+        </div>
+      </div>
+      <div>
+        <div class="mk" style="font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Test metrics</div>
+        <div class="mgrid">${mg}</div>
+        ${r.note ? `<div class="notes" style="margin-top:22px"><p><b>run note：</b>${esc(r.note)}</p></div>` : ""}
+      </div>
+    </div>
+    <div class="curves">
+      <div><div class="mk" style="font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Accuracy per epoch</div>${curveAcc}
+        <div class="cmnote"><i class="swatch" style="background:#16233A;width:9px;height:9px"></i> train &nbsp; <i class="swatch" style="background:#BF452C;width:9px;height:9px"></i> val</div></div>
+      <div><div class="mk" style="font:600 10px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)">Loss per epoch</div>${curveLoss}
+        <div class="cmnote"><i class="swatch" style="background:#16233A;width:9px;height:9px"></i> train &nbsp; <i class="swatch" style="background:#BF452C;width:9px;height:9px"></i> val</div></div>
+    </div>`;
+}
+
+function niceTicks(lo, hi, n) {
+  const raw = (hi - lo) / Math.max(1, n - 1);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw || 1)));
+  const k = raw / mag;
+  const step = (k <= 1 ? 1 : k <= 2 ? 2 : k <= 5 ? 5 : 10) * mag;
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(6));
+  return out.length ? out : [lo, hi];
+}
+
+function lineChart(xs, series, opt) {
+  const W = 520, H = opt.h || 150, L = 38, R = 8, T = 10, B = 22;
+  const iw = W - L - R, ih = H - T - B;
+  const all = series.flatMap(s => s.vals).filter(v => v != null);
+  const ymin = opt.ymin != null ? opt.ymin : Math.min(...all) * 0.95;
+  const ymax = opt.ymax != null ? opt.ymax : Math.max(...all) * 1.05;
+  const x = i => L + iw * (i / Math.max(1, xs.length - 1));
+  const y = v => T + ih * (1 - (v - ymin) / (ymax - ymin || 1));
+  const ticks = opt.ticks || niceTicks(ymin, ymax, 3);
+  let g = ticks.map(t => `<line class="grid" x1="${L}" x2="${L + iw}" y1="${y(t)}" y2="${y(t)}"/>
+    <text class="axis" x="${L - 6}" y="${y(t) + 3}" text-anchor="end">${t.toFixed(2)}</text>`).join("");
+  series.forEach(s => {
+    const d = s.vals.map((v, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(" ");
+    g += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="1.5"
+      ${s.dash ? `stroke-dasharray="${s.dash}"` : ""} stroke-linejoin="round"/>`;
+  });
+  g += `<text class="axis" x="${L + iw}" y="${H - 4}" text-anchor="end">epoch ${xs.length ? xs[xs.length - 1] : 0}</text>`;
+  return svgWrap(W, H, g);
+}
+
+/* ---------- nav active state ---------- */
+const sections = [...document.querySelectorAll("section[id]")];
+const links = [...document.querySelectorAll("nav a")];
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id));
+  });
+}, { rootMargin: "-56px 0px -65% 0px", threshold: 0 });
+sections.forEach(s => obs.observe(s));
+
+/* ---------- boot ---------- */
+renderBoard();
+renderHeat();
+renderAbl();
+renderEff();
+renderGap();
+renderDetail();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@
 # --- 深度学习 ---
 torch>=2.2
 torchvision>=0.17
+timm>=0.9            # src/models.py 用 timm 加载骨干（torchvision 缺 NASNet / Xception / InceptionResNetV2）
 
 # --- 数据与指标 ---
 numpy>=1.26
@@ -25,4 +26,4 @@ seaborn>=0.13
 # grad-cam>=1.5.0
 
 # --- demo ---
-# gradio>=4.0
+gradio>=4.0          # analysis/demo_app.py 的现场演示界面
