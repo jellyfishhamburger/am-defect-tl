@@ -58,7 +58,10 @@ def label_of(run_dir: Path) -> str:
     model = PRETTY.get(parts[0], parts[0])
     ds = parts[1] if len(parts) > 1 else "?"
     opt = (parts[2] if len(parts) > 2 else "?").capitalize()
-    return f"{model} · {ds} · {opt}"
+    tag = f"{model} · {ds} · {opt}"
+    if ds == "D2":
+        tag += "（128px 增强图训练，仅对照）"
+    return tag
 
 
 def get_model(run_dir: Path):
@@ -152,9 +155,10 @@ def ui_predict(image_path, run_label, compare_all):
 
     note = (
         f"**判定：`{verdict}`** ｜ P(defect) = `{r['p_defect']:.3f}`\n\n"
-        f"该模型在 D1 测试集（n={n_test}）上的表现："
+        f"该模型在 D1 测试集（n={n_test}）上的整体表现："
         f"acc `{tm.get('accuracy', float('nan')):.3f}` · F1 `{tm.get('f1', float('nan')):.3f}` · "
         f"MCC `{tm.get('mcc', float('nan')):.3f}`。\n\n"
+        "单张图的判断不代表整体准确率——测试集只有 54 张，错 1 张就是 1.8 个百分点。\n\n"
         "热力图是 Grad-CAM：红色区域是模型做判断时看得最重的地方。"
         "如果红色落在背景或反光上，说明它学到了伪相关。"
     )
@@ -163,12 +167,19 @@ def ui_predict(image_path, run_label, compare_all):
 
 
 def demo_examples(per_class: int = 2) -> list[Path]:
-    """界面上的示例图：优先用仓库自带的 samples/D1（224×224，未参与训练）。"""
-    out = []
-    for label in ("defect", "nondefect"):
-        d = ROOT / "samples" / "D1" / label
-        if d.exists():
-            out += sorted(p for p in d.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png"})[:per_class]
+    """界面示例图：优先 samples/D1_test（D1 测试集里抽的图，训练从未见过）。
+
+    退回到 samples/D1（Kenneth 做的 224px 调试图，含较多模型易错的边缘样本）。
+    """
+    for base in ("D1_test", "D1"):
+        out = []
+        for label in ("defect", "nondefect"):
+            d = ROOT / "samples" / base / label
+            if d.exists():
+                out += sorted(x for x in d.iterdir()
+                              if x.suffix.lower() in {".jpg", ".jpeg", ".png"})[:per_class]
+        if len(out) == 2 * per_class:
+            return out
     return out
 
 
@@ -182,7 +193,9 @@ def build_ui(choices: list[str], default: str):
         gr.Markdown(
             "# 3D 打印件缺陷检测 · 迁移学习复现\n"
             "**IDAT7215 Group Project · Topic 4** — 冻结 ImageNet 骨干，只训练论文同款分类头。\n\n"
-            f"> 可推理的模型：{len(choices)} 个（D1 / Adam）。其余 run 只保存了指标，没有权重。"
+            f"> 可推理的模型：{len(choices)} 个（5 个 D1 + 5 个 D2，均 Adam）。其余 run 只保存了指标，没有权重。"
+            "  \n> **D2 的 checkpoint 是在 128×128 增强图上训练的，对 224 原图明显更差（10 张缺陷样例只对 2–6 张），"
+            "只作对照，演示时建议用 D1。**"
             "  \n> 首次推理会载入骨干，约 3–8 秒；之后切换图片是秒级。"
         )
         with gr.Row():
@@ -190,7 +203,8 @@ def build_ui(choices: list[str], default: str):
                 img = gr.Image(type="filepath", label="上传 3D 打印件照片", height=320)
                 if DEMO_EXAMPLES:
                     gr.Examples(examples=[[str(p)] for p in DEMO_EXAMPLES],
-                                inputs=[img], label="示例（D1 测试集，未参与训练）")
+                                inputs=[img],
+                                label="示例（D1 测试集，训练未见过；每类 2 张。**这 4 张是挑选的代表样本，不是随机抽样**）")
                 model_dd = gr.Dropdown(choices, value=default, label="模型")
                 compare = gr.Checkbox(value=False, label="同时对比全部模型（慢约 5–10 秒）")
                 btn = gr.Button("判定", variant="primary")
