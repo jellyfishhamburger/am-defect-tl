@@ -23,10 +23,10 @@ primary_outputs:
 status:
   runs_completed: 66
   runs_expected: 66
-  checkpoints: 5        # results/runs/*/model.pt (head only)
-  figures: 11
+  checkpoints: 10       # results/runs/*/model.pt (head only; 5 on D1+Adam, 5 on D2+Adam)
+  figures: 14
+  leakage_experiment: done   # results/leakage.csv, results/figures/fig_leakage_combined.png
   unimplemented:
-    - analysis/leakage.py
     - analysis/lime_explain.py
     - analysis/efficiency.py
     - analysis/demo_app.py
@@ -113,10 +113,11 @@ status:
 | 项 | 状态 |
 |---|---|
 | 66 个 run | ✅ 全部完成，指标在 `results/leaderboard.csv` |
-| checkpoint | ✅ 5 个（vgg16 / mobilenet_v2 / xception / resnet50 / inception_resnet_v2，均 D1+Adam） |
+| checkpoint | ✅ 10 个（5 个 D1+Adam、5 个 D2+Adam），`results/runs/*/model.pt` |
 | Grad-CAM / 预测图 | ✅ 10 张，在 `results/figures/` |
 | 论文对标表 | ✅ `docs/paper_results.csv`（297 行，作者报告值） |
-| 未实现 | `analysis/{leakage,lime_explain,efficiency,demo_app}.py`（均为 `NotImplementedError`） |
+| 泄漏对照实验 | ✅ 完成（full + small15 两种设定，各 3 模型）；结果 `results/leakage.csv`，图 `fig_leakage_combined.png`。结论为**阴性**：未见泄漏效应（差异 ±1.5% 内，多数为负） |
+| 未实现 | `analysis/{lime_explain,efficiency,demo_app}.py`（均为 `NotImplementedError`） |
 | 报告 / PPT | ❌ 不在本仓库（由非代码成员在外部文档完成） |
 
 ## 9. 已知坑（踩过的）

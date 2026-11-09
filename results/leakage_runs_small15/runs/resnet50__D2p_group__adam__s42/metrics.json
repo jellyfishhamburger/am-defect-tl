@@ -1,0 +1,99 @@
+{
+  "run_id": "resnet50__D2p_group__adam__s42",
+  "git_commit": "8d6b3c9",
+  "author": "lead",
+  "model": "resnet50",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 23639298,
+  "n_params_trainable": 131266,
+  "dataset": "D2p_group",
+  "split_file": "splits/D2p_group.csv",
+  "input_size": 224,
+  "n_train": 312,
+  "n_val": 308,
+  "n_test": 594,
+  "optimizer": "adam",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 97.44,
+  "metrics": {
+    "train": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 0.9642857142857143,
+      "precision": 0.9554140127388535,
+      "recall": 0.974025974025974,
+      "f1": 0.9646302250803859,
+      "mcc": 0.9287476708172271,
+      "kappa": 0.9285714285714286,
+      "auc": 0.9960785967279474,
+      "map": 0.9962572199135209,
+      "sensitivity": 0.974025974025974,
+      "specificity": 0.9545454545454546
+    },
+    "test": {
+      "accuracy": 0.9764309764309764,
+      "precision": 0.9764309764309764,
+      "recall": 0.9764309764309764,
+      "f1": 0.9764309764309764,
+      "mcc": 0.9528619528619529,
+      "kappa": 0.9528619528619529,
+      "auc": 0.9978346880703783,
+      "map": 0.9978963329676791,
+      "sensitivity": 0.9764309764309764,
+      "specificity": 0.9764309764309764
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        155,
+        0
+      ],
+      [
+        0,
+        157
+      ]
+    ],
+    "val": [
+      [
+        147,
+        7
+      ],
+      [
+        4,
+        150
+      ]
+    ],
+    "test": [
+      [
+        290,
+        7
+      ],
+      [
+        7,
+        290
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}

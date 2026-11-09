@@ -294,9 +294,71 @@ def plot_results(csv_path: Path, out_dir: Path, tag: str) -> Path | None:
     return out
 
 
+def combine_and_plot(out_root: Path) -> None:
+    """把 results/leakage_<tag>.csv 合并成 results/leakage.csv，并画 2 面板对比图。
+
+    纯 csv + matplotlib，不需要 torch / 数据，可以在本地直接跑。
+    """
+    import csv as _csv
+
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    parts = [p for p in sorted(Path(out_root).glob("leakage_*.csv")) if p.name != "leakage.csv"]
+    if not parts:
+        raise FileNotFoundError(f"{out_root} 下没有 leakage_*.csv")
+    rows = []
+    for p in parts:
+        with p.open(encoding="utf-8") as fh:
+            rows.extend(list(_csv.DictReader(fh)))
+    rows.sort(key=lambda r: (r["setting"], r["model"]))
+
+    out_csv = Path(out_root) / "leakage.csv"
+    with out_csv.open("w", encoding="utf-8", newline="") as fh:
+        w = _csv.DictWriter(fh, fieldnames=list(rows[0].keys()), lineterminator="\n")
+        w.writeheader()
+        w.writerows(rows)
+    print(f"[leakage] 合并写出 {out_csv}（{len(rows)} 行）", flush=True)
+
+    settings = sorted({r["setting"] for r in rows})
+    fig, axes = plt.subplots(1, len(settings), figsize=(5.8 * len(settings), 3.9), sharey=True)
+    axes = np.atleast_1d(axes)
+    for ax, s in zip(axes, settings):
+        sub = [r for r in rows if r["setting"] == s]
+        models = [r["model"] for r in sub]
+        x = np.arange(len(models))
+        width = 0.36
+        acc_r = [float(r["accuracy_random"]) for r in sub]
+        acc_g = [float(r["accuracy_group"]) for r in sub]
+        ax.bar(x - width / 2, acc_r, width, label="random split (leak-prone)")
+        ax.bar(x + width / 2, acc_g, width, label="source-grouped split")
+        for i, r in enumerate(sub):
+            ax.annotate(f"{float(r['delta_accuracy']):+.3f}",
+                        (x[i], min(1.06, max(acc_r[i], acc_g[i]) + 0.015)),
+                        ha="center", fontsize=8)
+        ax.set_xticks(x, models, rotation=15)
+        ax.set_ylim(0, 1.14)
+        ax.set_title(f"setting = {s}  (train = {sub[0]['n_train_random']} imgs)")
+        ax.set_ylabel("test accuracy")
+        ax.legend(fontsize=8, loc="lower right")
+    fig.suptitle("Data leakage test on D2': random vs source-grouped split", fontsize=11)
+    fig.tight_layout()
+    out_fig = Path(out_root) / "figures" / "fig_leakage_combined.png"
+    out_fig.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_fig, dpi=200)
+    plt.close(fig)
+    print(f"[leakage] 写出 {out_fig}", flush=True)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--data-root", type=Path, required=True)
+    ap.add_argument("--data-root", type=Path, default=None,
+                    help="数据根目录（--combine 模式下可省略）")
+    ap.add_argument("--combine", action="store_true",
+                    help="只合并已有 leakage_*.csv 并画对比图（纯本地，不需要 GPU/数据）")
     ap.add_argument("--out", type=Path, default=Path("results"))
     ap.add_argument("--work-dir", type=Path, default=None, help="D2′ 与划分的存放目录")
     ap.add_argument("--models", default="vgg16,resnet50,mobilenet_v2")
@@ -307,6 +369,11 @@ def main() -> None:
     args = ap.parse_args()
 
     out_root = Path(args.out)
+    if args.combine:
+        combine_and_plot(out_root)
+        return
+    if args.data_root is None:
+        raise SystemExit("非 --combine 模式必须提供 --data-root")
     work_dir = Path(args.work_dir) if args.work_dir else out_root / "leakage_work"
     splits_dir = work_dir / "splits"
     models = [m.strip() for m in args.models.split(",") if m.strip()]

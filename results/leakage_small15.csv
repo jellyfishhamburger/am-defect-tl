@@ -1,0 +1,4 @@
+setting,train_fraction,model,accuracy_random,accuracy_group,delta_accuracy,f1_random,f1_group,delta_f1,auc_random,auc_group,n_train_random,n_train_group,n_test
+small15,0.15,vgg16,0.9698,0.9731,-0.0033,0.9691,0.9733,-0.0043,0.999,0.9977,313,312,596
+small15,0.15,resnet50,0.9664,0.9764,-0.01,0.9656,0.9764,-0.0108,0.9983,0.9978,313,312,596
+small15,0.15,mobilenet_v2,0.9799,0.9949,-0.0151,0.9795,0.995,-0.0154,0.9996,0.9999,313,312,596
