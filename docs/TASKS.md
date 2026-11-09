@@ -160,9 +160,10 @@ python -c "import torch, timm, gradio; print('ok', torch.__version__)"
 | 5 个分类头 checkpoint | ✅ `results/runs/*/model.pt` |
 | Grad-CAM / 预测示例图 10 张 | ✅ `results/figures/` |
 | 论文对标表 297 行 | ✅ `docs/paper_results.csv` |
-| 报告图表生成器 | ❌ 不存在（= T1） |
-| 表格导出 | ❌ 不存在（= T2） |
-| 效率 / LIME / demo | ❌ 空壳（= T3 / T4 / T5） |
+| 报告图表生成器 | ✅ `analysis/make_figures.py`，5 张 `results/figures/fig_*.png` + `INDEX.md`（T1） |
+| 表格导出 | ✅ `analysis/export_tables.py`，`reports/tables/table{1..5}_*.{md,tex}`（T2） |
+| 效率 / LIME / demo | ✅ `analysis/{efficiency,lime_explain,demo_app}.py`（T3 / T4 / T5）；GPU 时延列待 Kenneth 补 |
+| 工程收尾 | ✅ `reproduce.sh`、`tests/test_analysis_outputs.py`、`docs/archive/`（T6） |
 
 ---
 
