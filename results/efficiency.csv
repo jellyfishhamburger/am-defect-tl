@@ -1,0 +1,12 @@
+model,n_params,n_params_trainable,gflops,cpu_ms_per_image,gpu_ms_per_image
+mobilenet_v2,2305986,82114,0.599,26.1,N/A
+efficientnet_b0,4089662,82114,0.769,51.3,N/A
+resnet50,23639298,131266,8.175,71.0,N/A
+xception,20938218,131266,9.102,114.9,N/A
+inception_resnet_v2,54404962,98498,12.935,239.3,N/A
+efficientnet_v2m,52940470,82114,10.722,344.9,N/A
+efficientnet_b7,63950994,164034,10.335,340.5,N/A
+resnet101,42631426,131266,15.599,156.2,N/A
+vgg16,134293506,32962,30.693,169.9,N/A
+vgg19,139603202,32962,39.017,251.2,N/A
+nasnet_large,84978392,258242,20.56,580.1,N/A
