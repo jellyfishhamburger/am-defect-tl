@@ -1,6 +1,6 @@
 # splits/ —— 全组唯一的数据划分（契约文件）
 
-**只有地基组能改这里。** 冻结（2026-10-29）之后任何人不得修改；必须改则全组重跑。
+**这是全仓库唯一一份划分，冻结（2026-10-29）之后不得修改。** 必须改则全部 66 个 run 都要重跑。
 
 ## 文件
 
@@ -26,7 +26,7 @@ path,label,split,source_id
 ## 校验
 
 ```bash
-pytest tests/test_contracts.py -v
+python -m unittest discover -s tests -v
 ```
 
 检查项：① 三个 split 的类别比例；② 同一 `source_id` 不跨 split（D2p 必须通过）；
