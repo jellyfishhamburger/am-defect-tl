@@ -45,3 +45,6 @@ kaggle/
 
 # Gradio 本地证书
 .gradio/
+
+# 交接文档的 PDF 是生成物（源文件是 docs/HANDOVER.md）
+docs/HANDOVER*.pdf
