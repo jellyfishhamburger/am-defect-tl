@@ -1,5 +1,5 @@
 # 本地环境依赖。Kaggle Notebook 已预装 torch/torchvision，只需额外装少数包。
-# 版本策略：先写最低版本，11/8 主矩阵跑完后由地基组锁死精确版本并更新本文件。
+# CPU-only 分析任务（T1–T5）用到的都在这里；GPU 训练只额外需要 Kaggle 预装的包。
 
 # --- 深度学习 ---
 torch>=2.2
@@ -21,9 +21,9 @@ tqdm>=4.66
 matplotlib>=3.8
 seaborn>=0.13
 
-# --- 可解释性（用到才装，需在 NOTICE.md 登记）---
-# lime>=0.2.0.1
-# grad-cam>=1.5.0
+# --- 可解释性（T4；已登记在 NOTICE.md）---
+lime>=0.2.0.1        # analysis/lime_explain.py；会带入 scikit-image
+# grad-cam>=1.5.0    # 未使用：CAM 算法在 analysis/gradcam.py 自行实现
 
 # --- demo ---
 gradio>=4.0          # analysis/demo_app.py 的现场演示界面

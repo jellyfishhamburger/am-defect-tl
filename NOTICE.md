@@ -10,16 +10,18 @@
 
 | 组件 | 版本 | 用途 | 许可证 | 是否修改 | 使用位置 |
 |---|---|---|---|---|---|
-| PyTorch | ≥2.2 | 深度学习框架 | BSD-3 | 否 | 全部训练/评估代码 |
+| PyTorch | ≥2.2（本地实测 2.15.0） | 深度学习框架 | BSD-3 | 否 | 全部训练/评估代码 |
 | torchvision | ≥0.17 | **ImageNet 预训练权重** + transforms | BSD-3 | 否 | `src/models.py` |
+| timm | ≥0.9（本地实测 1.0.31） | 11 个骨干 + ImageNet 预训练权重（torchvision 缺 NASNet / Xception / InceptionResNetV2） | Apache-2.0 | 否 | `src/models.py`, `analysis/{demo_app,checkpoint,lime_explain,efficiency}.py` |
 | scikit-learn | ≥1.4 | 指标（MCC / Kappa / AUC / AP）+ 划分 | BSD-3 | 否 | `src/evaluate.py`, `src/splits.py` |
 | NumPy / pandas | — | 数据处理 | BSD-3 | 否 | 全项目 |
 | Pillow / OpenCV | — | 读图与预处理 | HPND / Apache-2.0 | 否 | `src/data_prepare.py` |
 | Matplotlib / seaborn | — | 绘图 | PSF / BSD-3 | 否 | `src/evaluate.py`, `src/aggregate.py` |
 | PyYAML | — | 配置读取 | MIT | 否 | `src/train.py` |
-| `lime` | 待定 | LIME 可解释性 | BSD-2 | 待定 | `analysis/lime_explain.py` |
-| Grad-CAM | 待定 | 若不自写则用库 | MIT | 待定 | `analysis/gradcam.py` |
-| Gradio | 待定 | demo 界面 | Apache-2.0 | 待定 | `analysis/demo_app.py` |
+| `lime` | 0.2.0.1 | LIME 超像素解释（T4） | BSD-2 | 否（只调用 `LimeImageExplainer`） | `analysis/lime_explain.py` |
+| scikit-image | `lime` 的间接依赖 | 图像分割（超像素） | BSD-3 | 否 | 仅经 `lime` 调用 |
+| Gradio | ≥4（本地实测 6.31.0） | demo 网页界面（T5） | Apache-2.0 | 否 | `analysis/demo_app.py` |
+| Grad-CAM | — | **未使用第三方库**：CAM 算法由本组在 `analysis/gradcam.py` 自行实现，只用 matplotlib 上色 | — | — | `analysis/gradcam.py` |
 
 ## 二、参考但不含代码的外部资源
 
