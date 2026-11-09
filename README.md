@@ -11,6 +11,14 @@
 > transfer learning approaches," *Expert Systems with Applications*, vol. 253, p. 124293, Nov. 2024,
 > doi: [10.1016/j.eswa.2024.124293](https://doi.org/10.1016/j.eswa.2024.124293)
 
+| 入口 | 在哪 |
+|---|---|
+| **结果看板**（66 个 run 的可交互页面，单文件、零外链） | <https://jellyfishhamburger.github.io/am-defect-tl/> · 源文件 `docs/index.html` |
+| **现场推理 demo**（上传图 → 概率 + Grad-CAM，本机跑） | `python -m analysis.demo_app --offline` → <http://127.0.0.1:7860> |
+| 报告用图 / 表 | `results/figures/INDEX.md`（含英文 caption）· `reports/tables/`（md + tex） |
+
+> 看板是**静态网页**（不是训练服务，也不是后端 API）；推理 demo 只在本机跑，不上线。
+
 ---
 
 ## 1. 这是什么
@@ -100,18 +108,22 @@ src/                 # 训练管线（10 个模块，全部已实现）
   aggregate.py       #   leaderboard + 作者报告值对标
   evaluate.py        #   指标与绘图
   utils.py           #   种子、路径、JSON
-analysis/            # 分析与可解释性
-  gradcam.py         #   Grad-CAM 热力图 + 预测示例图（已实现）
-  leakage.py         #   泄漏对照实验（未实现）
-  lime_explain.py    #   LIME（未实现）
-  efficiency.py      #   参数量/FLOPs/时延（未实现）
-  demo_app.py        #   Gradio 演示页面（未实现）
+analysis/            # 分析与可解释性（全部 CPU 可跑）
+  gradcam.py         #   Grad-CAM 热力图 + 预测示例图
+  leakage.py         #   泄漏对照实验
+  lime_explain.py    #   LIME 超像素解释（T4）
+  efficiency.py      #   参数量 / FLOPs / 单张时延（T3）
+  demo_app.py        #   Gradio 现场演示（T5）
+  make_figures.py    #   报告图表生成器（T1）
+  export_tables.py   #   报告表格导出，Markdown + LaTeX（T2）
+  checkpoint.py      #   从 model.pt 复原模型（兼容全局池化头）
 configs/             # 实验配置模板
 splits/              # 冻结的数据划分 csv（D1.csv / D2.csv）
 results/
   runs/<run_id>/     #   每个 run：metrics.json + 混淆矩阵 + 训练曲线 + model.pt
   leaderboard.csv    #   66 行结果总表（脚本生成，禁止手改）
-  figures/           #   Grad-CAM / 预测示例图
+  figures/           #   Grad-CAM / LIME / 汇总图，索引见 INDEX.md
+reports/tables/      #   报告表格（生成物，勿手改）
 docs/                # 数据说明、结果格式、作者代码分析、论文数值对照
 tools/               # 自包含 Kaggle kernel 构建器、作者结果表抽取脚本
 tests/               # 契约测试（划分不泄漏 / metrics schema）
