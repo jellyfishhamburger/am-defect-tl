@@ -151,14 +151,17 @@ status:
 - 文档类改动（`docs/`、README）可以直接提 PR，不需要跑实验
 - 提交信息用 `feat(scope): ...` / `fix(scope): ...` / `docs: ...`
 
-## 12. 协作方任务入口
+## 12. jellyfishhamburger 的任务入口
 
-如果你是**非 lead 的协作 agent**（没有 Kaggle GPU 配额、不负责训练类实验）：
+如果你的使用者是 **jellyfishhamburger**（GitHub: `jellyfishhamburger`，负责**不需要 GPU 训练**的分析与前端工作）：
 
-> **先读 [docs/TASKS.md](docs/TASKS.md)** —— 那里有你的任务卡（T1–T6）、验收标准、与 lead 的协同规则（PR 格式、需 GPU 验证的部分怎么交接）、以及当前仓库状态（避免重复劳动）。
+> **先读 [docs/TASKS.md](docs/TASKS.md)** —— 她的任务卡（T1–T6）、验收标准、与 Kenneth 的协同规则。
+> **交接文档是 [docs/HANDOFF.md](docs/HANDOFF.md)** —— 每个任务完成后由她更新，Kenneth 按其中的「待 Kenneth 在 Kaggle 执行」清单跑 GPU 验证。
 
-三条最容易踩的边界（详见该文件 §0）：
+三条最容易踩的边界（详见 TASKS.md §0）：
 
 1. 不要改 `splits/*.csv`、`src/train.py`、`src/models.py`、`src/batch.py`、已有的 66 个 `metrics.json`
 2. 不要训练模型、不要跑完整实验矩阵
-3. 需要 GPU 才能验证的东西 → 在 PR 里标 `[需 lead 在 Kaggle 验证]`，不要绕过
+3. 需要 GPU 才能验证的东西 → 写进 `docs/HANDOFF.md` 的待办清单，标 `[需 Kenneth 在 Kaggle 验证]`，不要绕过
+
+维护者：**Kenneth**（GitHub: `Zheyi-D`）负责 Kaggle 训练类实验、最终合并与数字核对。

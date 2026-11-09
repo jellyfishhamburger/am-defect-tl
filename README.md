@@ -190,4 +190,7 @@ python tools/build_kernel.py --slug my-run --cmd "<上面的任意命令>"
 ## 9. 给 AI agent 的说明
 
 - 仓库的机器可读约定、规范命令、不变量与已知坑：[**AGENTS.md**](AGENTS.md)
-- 协作开发者的任务卡与协同规则：[**docs/TASKS.md**](docs/TASKS.md)
+- jellyfishhamburger（负责非 GPU 训练类工作）的任务卡与协同规则：[**docs/TASKS.md**](docs/TASKS.md)
+- 她交接给 Kenneth 的文档：[**docs/HANDOFF.md**](docs/HANDOFF.md)
+
+维护分工：**Kenneth**（GitHub: `Zheyi-D`）负责 Kaggle 训练类实验与最终合并；**jellyfishhamburger** 负责图表、表格、推理类分析与 demo。
