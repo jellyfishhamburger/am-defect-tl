@@ -42,3 +42,6 @@ desktop.ini
 
 # ---- Kaggle kernel 构建产物（base64 内嵌代码，生成物，不进 Git）----
 kaggle/
+
+# Gradio 本地证书
+.gradio/
