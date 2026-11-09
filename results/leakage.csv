@@ -1,0 +1,4 @@
+model,accuracy_random,accuracy_group,delta_accuracy,f1_random,f1_group,delta_f1,auc_random,auc_group
+vgg16,1.0,0.9882,0.0118,1.0,0.9883,0.0117,1.0,0.9998
+resnet50,0.9916,0.9966,-0.005,0.9916,0.9966,-0.005,0.9999,0.9999
+mobilenet_v2,0.9983,1.0,-0.0017,0.9983,1.0,-0.0017,1.0,1.0

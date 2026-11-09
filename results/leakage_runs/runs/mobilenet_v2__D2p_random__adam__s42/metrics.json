@@ -1,0 +1,99 @@
+{
+  "run_id": "mobilenet_v2__D2p_random__adam__s42",
+  "git_commit": "e47e2c6",
+  "author": "lead",
+  "model": "mobilenet_v2",
+  "pretrained": "imagenet",
+  "freeze": "all_conv",
+  "head": "AvgPool2d(4)->Flatten->Dense(64)->Dropout(0.5)->Dense(2)",
+  "n_params_total": 2305986,
+  "n_params_trainable": 82114,
+  "dataset": "D2p_random",
+  "split_file": "splits/D2p_random.csv",
+  "input_size": 224,
+  "n_train": 2087,
+  "n_val": 298,
+  "n_test": 596,
+  "optimizer": "adam",
+  "lr": 0.001,
+  "batch_size": 32,
+  "epochs": 50,
+  "seed": 42,
+  "device": "cuda",
+  "train_time_s": 158.91,
+  "metrics": {
+    "train": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "val": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "mcc": 1.0,
+      "kappa": 1.0,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 1.0,
+      "specificity": 1.0
+    },
+    "test": {
+      "accuracy": 0.9983221476510067,
+      "precision": 1.0,
+      "recall": 0.9966555183946488,
+      "f1": 0.998324958123953,
+      "mcc": 0.9966499068325335,
+      "kappa": 0.9966442953020134,
+      "auc": 1.0,
+      "map": 1.0,
+      "sensitivity": 0.9966555183946488,
+      "specificity": 1.0
+    }
+  },
+  "confusion": {
+    "train": [
+      [
+        1040,
+        0
+      ],
+      [
+        0,
+        1047
+      ]
+    ],
+    "val": [
+      [
+        148,
+        0
+      ],
+      [
+        0,
+        150
+      ]
+    ],
+    "test": [
+      [
+        297,
+        0
+      ],
+      [
+        1,
+        298
+      ]
+    ]
+  },
+  "smoke": false,
+  "annotations": {
+    "augment": false,
+    "note": ""
+  }
+}
