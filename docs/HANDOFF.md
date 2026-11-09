@@ -237,6 +237,9 @@ PR 描述里**直接引用本文件对应小节**（例：`见 docs/HANDOFF.md#t
 
 - **待 Kenneth 在 Kaggle 执行**：无
 - **遗留问题**：`reproduce.sh` 在 Kaggle 上跑要 `bash reproduce.sh`；Windows 本地跑请显式给 `--cache`（默认 `/kaggle/temp/cache` 不存在）。
+  另外合并后请顺手更新 `AGENTS.md` §8 的状态快照——它现在还写着
+  `analysis/{lime_explain,efficiency,demo_app}.py` 未实现、`figures: 14`，合并后应为已实现、图 22 张
+  （`docs/TASKS.md` §6 我已经同步更新了）。
 
 ---
 
