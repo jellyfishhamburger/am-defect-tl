@@ -162,7 +162,17 @@ def ui_predict(image_path, run_label, compare_all):
     return prob, r["overlay"], note, table
 
 
-DEMO_EXAMPLES = sorted((ROOT / "demo_examples").glob("*.JPG"))
+def demo_examples(per_class: int = 2) -> list[Path]:
+    """界面上的示例图：优先用仓库自带的 samples/D1（224×224，未参与训练）。"""
+    out = []
+    for label in ("defect", "nondefect"):
+        d = ROOT / "samples" / "D1" / label
+        if d.exists():
+            out += sorted(p for p in d.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png"})[:per_class]
+    return out
+
+
+DEMO_EXAMPLES = demo_examples()
 
 
 def build_ui(choices: list[str], default: str):

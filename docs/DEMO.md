@@ -21,10 +21,10 @@
 | `tools/build_dashboard.py` | 读 `results/` → 注入数据 → 生成页面 | — | ✅ |
 | `analysis/demo_app.py` | Gradio 推理界面 + `--warmup` / `--selftest` | — | ✅ |
 | `analysis/checkpoint.py` | 从 `model.pt` 复原模型（解决头部形状不一致） | — | ✅ |
-| `demo_examples/` | 4 张 D1 测试集样例（2 defect / 2 nondefect，已压到 1400 px） | `splits/D1.csv` 里 `split=test` 的行 | ✅ 可替换 |
+| `samples/` | 20 张 224×224 调试样图（仓库自带，界面里的"示例"就是它） | Kenneth 从 D1 缩放生成 | 不要当正式结果数据 |
 
-> `demo_examples/` 的图取自 AMdataset 公开仓库（University of Oklahoma SMIS Lab），仅用于课程演示，
-> 按作者要求注明引用；**不要**把它们二次分发到其他仓库或数据集。
+> `samples/` 的图取自 AMdataset 公开仓库（University of Oklahoma SMIS Lab），仅用于本地跑通与演示；
+> 正式指标只认 `results/runs/*/metrics.json`。
 
 改完模板后必须重新跑一次生成命令，否则页面还是旧的：
 
@@ -78,7 +78,7 @@ python -m analysis.demo_app --offline --no-browser
 | 0:30–1:00 | 切到 03 优化器消融 | "SGD 对 ResNet 系明显更差，差 7 个点；其余模型几乎不受优化器影响。这是论文没做的消融。" |
 | 1:00–1:30 | 切到 05 复现差距 | "作者报告里三个 EfficientNet 的 F1 是 0，全预测成多数类；我们复现的这一组是正常收敛的。所以那三行 +0.49 不是我们更强，是作者那组没跑起来。" |
 | 1:30–2:10 | 打开推理界面，传一张 test 图 | 先说"这是 D1 测试集里的一张，不是训练图"，再点"判定"，指出 Grad-CAM 红区落在缺陷处还是背景。 |
-| 2:10–2:30 | 勾"对比全部模型" | "同一张图，5 个骨干的判定一致/不一致——不一致说明这个样本本身处在决策边界上。" |
+| 2:10–2:30 | 勾"对比全部模型" | "同一张图，10 个 checkpoints（5 个 D1 + 5 个 D2）的判定一致/不一致——不一致说明这个样本本身处在决策边界上。" |
 
 **手上要有的备用图**：从 Kaggle 数据集里挑 4 张（2 defect / 2 nondefect）存到本地文件夹，
 其中 1 张故意选很模糊的，用来演示"模型什么时候会错"。
@@ -150,3 +150,18 @@ python -m analysis.demo_app --offline --no-browser
 | 手机打不开 | 只监听了 127.0.0.1 / 防火墙拦截 | `--host 0.0.0.0` + 放行 7860 |
 | 看板打开是空白 | 用了旧缓存或文件被截断 | 重新 `python tools/build_dashboard.py`，确认约 180 KB |
 | 看板数字和表格对不上 | 有人手改了 `leaderboard.csv` | 结果只认 `results/runs/*/metrics.json`，重跑 `src.aggregate` |
+
+---
+
+## 9. 录 90 秒演示视频（T5 验收要求）
+
+答辩前录一份兜底视频，放桌面命名 `demo_fallback.mp4`。步骤：
+
+1. 窗口只留浏览器，缩放到 100%，地址栏不显示书签；
+2. 录屏开始 → 停 2 秒 → 点第一张示例图（自动预测）→ 停 3 秒，让观众看清概率和热力图；
+3. 勾"同时对比全部模型" → 等表格出来 → 滚到表格，停 4 秒；
+4. 换一张 nondefect 示例 → 停 4 秒；
+5. 切一次模型下拉（比如 VGG16 → MobileNetV2）→ 停 4 秒；
+6. 结束录屏，总长控制在 60–90 秒；不要说话，现场再配讲解。
+
+自检：把视频拖进播放器，确认 ① 概率数字清楚 ② 热力图没有糊 ③ 没有录到终端或通知弹窗。
