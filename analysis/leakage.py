@@ -153,6 +153,29 @@ def _summary(rows: list[dict]) -> str:
     return f"train={c['train']} val={c['val']} test={c['test']}"
 
 
+def subsample_train(rows: list[dict], fraction: float, seed: int = 42) -> list[dict]:
+    """只保留一部分训练样本，val/test 不动。
+
+    目的：原始实验里两套划分都顶到 ~100%（天花板效应），看不出泄漏差异。
+    砍掉训练数据后准确率下降，泄漏才有空间显现。
+    对 group 划分，砍掉部分副本不会破坏"同源不跨集合"的性质。
+    """
+    if fraction >= 1.0:
+        return rows
+    keep: set[str] = set()
+    for offset, label in enumerate(LABELS):
+        items = [r for r in rows if r["split"] == "train" and r["label"] == label]
+        n_keep = max(1, int(round(len(items) * fraction)))
+        idx = list(range(len(items)))
+        random.Random(seed + offset).shuffle(idx)
+        keep.update(items[i]["path"] for i in idx[:n_keep])
+    out = []
+    for r in rows:
+        if r["split"] != "train" or r["path"] in keep:
+            out.append(r)
+    return out
+
+
 # ---------------------------------------------------------------- 实验
 def run_ablation(data_root: Path, splits_dir: Path, out_root: Path,
                  models: list[str], smoke: bool = False) -> list[dict]:
@@ -186,20 +209,24 @@ def run_ablation(data_root: Path, splits_dir: Path, out_root: Path,
     return results
 
 
-def write_results(results: list[dict], out_root: Path) -> Path:
-    """写 results/leakage.csv（含随机划分与分组划分的差值）。"""
+def write_results(results: list[dict], out_root: Path, tag: str, train_fraction: float) -> Path:
+    """写 results/leakage_<tag>.csv（含随机划分与分组划分的差值）。"""
     by_model = defaultdict(dict)
     for r in results:
         by_model[r["model"]][r["split_mode"]] = r
 
-    fields = ["model", "accuracy_random", "accuracy_group", "delta_accuracy",
-              "f1_random", "f1_group", "delta_f1", "auc_random", "auc_group"]
+    fields = ["setting", "train_fraction", "model",
+              "accuracy_random", "accuracy_group", "delta_accuracy",
+              "f1_random", "f1_group", "delta_f1", "auc_random", "auc_group",
+              "n_train_random", "n_train_group", "n_test"]
     rows = []
     for model, d in by_model.items():
         a, g = d.get("random"), d.get("group")
         if not a or not g:
             continue
         rows.append({
+            "setting": tag,
+            "train_fraction": train_fraction,
             "model": model,
             "accuracy_random": round(a["accuracy"], 4),
             "accuracy_group": round(g["accuracy"], 4),
@@ -209,9 +236,12 @@ def write_results(results: list[dict], out_root: Path) -> Path:
             "delta_f1": round(a["f1"] - g["f1"], 4),
             "auc_random": round(a["auc"], 4),
             "auc_group": round(g["auc"], 4),
+            "n_train_random": a["n_train"],
+            "n_train_group": g["n_train"],
+            "n_test": a["n_test"],
         })
 
-    out = Path(out_root) / "leakage.csv"
+    out = Path(out_root) / f"leakage_{tag}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", encoding="utf-8", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=fields, lineterminator="\n")
@@ -221,7 +251,7 @@ def write_results(results: list[dict], out_root: Path) -> Path:
     return out
 
 
-def plot_results(csv_path: Path, out_dir: Path) -> Path | None:
+def plot_results(csv_path: Path, out_dir: Path, tag: str) -> Path | None:
     """画对照柱状图：每个模型两组准确率 + 差值。"""
     import matplotlib
 
@@ -253,10 +283,10 @@ def plot_results(csv_path: Path, out_dir: Path) -> Path | None:
     ax.set_xticks(x, models, rotation=15)
     ax.set_ylim(0, 1.08)
     ax.set_ylabel("test accuracy")
-    ax.set_title("Data leakage: random vs source-grouped split (D2')")
+    ax.set_title(f"Data leakage: random vs source-grouped split ({tag})")
     ax.legend(fontsize=8, loc="lower right")
     fig.tight_layout()
-    out = Path(out_dir) / "fig_leakage.png"
+    out = Path(out_dir) / f"fig_leakage_{tag}.png"
     out.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out, dpi=200)
     plt.close(fig)
@@ -271,6 +301,8 @@ def main() -> None:
     ap.add_argument("--work-dir", type=Path, default=None, help="D2′ 与划分的存放目录")
     ap.add_argument("--models", default="vgg16,resnet50,mobilenet_v2")
     ap.add_argument("--per-image", type=int, default=11)
+    ap.add_argument("--train-fraction", type=float, default=1.0,
+                    help="只保留这部分训练样本（<1 用于打破准确率天花板，让泄漏效应显现）")
     ap.add_argument("--smoke", action="store_true")
     args = ap.parse_args()
 
@@ -293,17 +325,21 @@ def main() -> None:
 
     rnd = split_random(rows)
     grp = split_group(rows)
+    rnd = subsample_train(rnd, args.train_fraction)
+    grp = subsample_train(grp, args.train_fraction)
+    tag = "full" if args.train_fraction >= 1.0 else f"small{int(round(args.train_fraction * 100))}"
     _write_split(rnd, splits_dir / f"{DATASET}_random.csv")
     _write_split(grp, splits_dir / f"{DATASET}_group.csv")
+    print(f"[leakage] 设定={tag}  train_fraction={args.train_fraction}", flush=True)
     print(f"[leakage] random 划分: {_summary(rnd)}", flush=True)
     print(f"[leakage] group  划分: {_summary(grp)}", flush=True)
 
     # 3) 训练对比
-    results = run_ablation(d2p_root, splits_dir, out_root / "leakage_runs", models, smoke=args.smoke)
+    results = run_ablation(d2p_root, splits_dir, out_root / f"leakage_runs_{tag}", models, smoke=args.smoke)
 
     # 4) 汇总 + 画图
-    csv_path = write_results(results, out_root)
-    plot_results(csv_path, out_root / "figures")
+    csv_path = write_results(results, out_root, tag, args.train_fraction)
+    plot_results(csv_path, out_root / "figures", tag)
     print("[leakage] 完成", flush=True)
 
 
