@@ -60,7 +60,7 @@ def label_of(run_dir: Path) -> str:
     opt = (parts[2] if len(parts) > 2 else "?").capitalize()
     tag = f"{model} · {ds} · {opt}"
     if ds == "D2":
-        tag += "（128px 增强图训练，仅对照）"
+        tag = "⚠ " + tag + "（128px 增强图训练，仅对照）"
     return tag
 
 
@@ -75,8 +75,13 @@ def get_model(run_dir: Path):
 
 
 def predict_one(run_dir: Path, image_path: str) -> dict:
-    """单模型推理，返回 label 概率、叠加图、Grad-CAM 数组。"""
+    """单模型推理，返回概率、叠加图、Grad-CAM 数组。
+
+    Grad-CAM 跟随**模型实际判定的类别**：判 nondefect 时就解释 nondefect 的证据，
+    否则热力图会显示"支持 defect 的证据"，在无缺陷样本上几乎全黑、看着像出错。
+    """
     import numpy as np
+    import torch
     from PIL import Image
 
     from analysis.gradcam import compute_cam, heat_overlay, load_image
@@ -84,13 +89,18 @@ def predict_one(run_dir: Path, image_path: str) -> dict:
     model, ckpt = get_model(run_dir)
     size = int(ckpt.get("input_size", 224))
     x, im = load_image(Path(image_path), size)
-    cam, probs = compute_cam(model, x, class_idx=1)
+
+    with torch.no_grad():
+        probs = torch.softmax(model(x), dim=1)[0].cpu().numpy()
+    pred = int(np.argmax(probs))
+    cam, _ = compute_cam(model, x, class_idx=pred)
 
     overlay = heat_overlay(im, cam, alpha=0.5)
     overlay_img = Image.fromarray((np.clip(overlay, 0, 1) * 255).astype("uint8"))
     return {
         "p_defect": float(probs[1]),
         "p_nondefect": float(probs[0]),
+        "pred": pred,
         "overlay": overlay_img,
         "cam": cam,
     }
@@ -151,10 +161,13 @@ def ui_predict(image_path, run_label, compare_all):
     n_test = meta.get("n_test", "?")
 
     verdict = "defect" if r["p_defect"] >= 0.5 else "nondefect"
+    verdict_cn = "有缺陷" if verdict == "defect" else "无缺陷"
     prob = {"defect": r["p_defect"], "nondefect": r["p_nondefect"]}
 
     note = (
-        f"**判定：`{verdict}`** ｜ P(defect) = `{r['p_defect']:.3f}`\n\n"
+        f"**判定：`{verdict}`（{verdict_cn}）** ｜ P(defect) = `{r['p_defect']:.3f}`\n\n"
+        f"热力图解释的是**这个判定**（{'defect' if r.get('pred', 1) == 1 else 'nondefect'}），"
+        "红色 = 支持该判定的区域，蓝色 = 反对。\n\n"
         f"该模型在 D1 测试集（n={n_test}）上的整体表现："
         f"acc `{tm.get('accuracy', float('nan')):.3f}` · F1 `{tm.get('f1', float('nan')):.3f}` · "
         f"MCC `{tm.get('mcc', float('nan')):.3f}`。\n\n"
@@ -202,9 +215,11 @@ def build_ui(choices: list[str], default: str):
             with gr.Column(scale=1):
                 img = gr.Image(type="filepath", label="上传 3D 打印件照片", height=320)
                 if DEMO_EXAMPLES:
+                    gr.Markdown("示例顺序：第 1–2 张是 **defect（有缺陷）**，第 3–4 张是 **nondefect（无缺陷）**。"
+                                "先点有缺陷的两张，再点无缺陷的两张。")
                     gr.Examples(examples=[[str(p)] for p in DEMO_EXAMPLES],
                                 inputs=[img],
-                                label="示例（D1 测试集，训练未见过；每类 2 张。**这 4 张是挑选的代表样本，不是随机抽样**）")
+                                label="示例（D1 测试集，训练未见过；每类 2 张，是挑选的样本，不是随机抽样）")
                 model_dd = gr.Dropdown(choices, value=default, label="模型")
                 compare = gr.Checkbox(value=False, label="同时对比全部模型（慢约 5–10 秒）")
                 btn = gr.Button("判定", variant="primary")
