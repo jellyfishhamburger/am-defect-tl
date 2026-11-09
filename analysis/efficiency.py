@@ -13,6 +13,8 @@
     - 骨干第一次构建会从 timm 下载 ImageNet 权重（100–600 MB/模型），之后走缓存；
       本任务只测量**推理**成本，权重是否预训练对时延的影响可以忽略，但为了与训练时的模型一致，仍用 pretrained=True。
     - GPU 时延本机无法测（无 GPU），CSV 里写 N/A，交给 Kenneth 在 Kaggle 补。
+    - **测量时必须让机器空载**：并行下载权重 / 跑 LIME 会把均值拖高 40–100%（实测 EfficientNetV2-M
+      344.9 → 161.8 ms）。重测前先确认没有别的 python 进程在跑。
     - 不写任何 src/ 下的文件，不改 metrics.json。
 """
 

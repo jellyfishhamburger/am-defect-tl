@@ -105,17 +105,22 @@ PR 描述里**直接引用本文件对应小节**（例：`见 docs/HANDOFF.md#t
   [efficiency] 图 → results/figures/fig_efficiency.png
   ```
 
-  CSV 前三行：
+  CSV 前三行（**空载重测**，见下方遗留问题）：
 
   ```text
   model,n_params,n_params_trainable,gflops,cpu_ms_per_image,gpu_ms_per_image
-  mobilenet_v2,2305986,82114,0.599,26.1,N/A
-  efficientnet_b0,4089662,82114,0.769,51.3,N/A
-  resnet50,23639298,131266,8.175,71.0,N/A
+  mobilenet_v2,2305986,82114,0.599,22.9,N/A
+  efficientnet_b0,4089662,82114,0.769,34.6,N/A
+  resnet50,23639298,131266,8.175,82.8,N/A
   ```
 
-  实测单模型耗时（含首次下载/构建）：MobileNetV2 7 s，ResNet50 4 s，Xception 3 s，InceptionResNetV2 8 s，
-  EfficientNetV2-M 23 s，EfficientNet-B7 24 s，ResNet101 15 s，VGG16 8 s，VGG19 32 s，NASNet-Large 34 s。
+  实测单模型耗时（权重已缓存、机器空载）：MobileNetV2 5 s，EfficientNet-B0 1 s，ResNet50 3 s，
+  Xception 3 s，InceptionResNetV2 6 s，EfficientNetV2-M 6 s，EfficientNet-B7 7 s，ResNet101 5 s，
+  VGG16 7 s，VGG19 8 s，NASNet-Large 13 s。
+
+  ⚠️ 第一次测量时机器上同时在下模型/跑 LIME，均值被拖高（例如 EfficientNet-B0 51.3 → 34.6 ms，
+  NASNet-Large 580.1 → 389.5 ms，EfficientNetV2-M 344.9 → 161.8 ms，后者从"比 VGG16 慢一倍"变成"和 VGG16 持平"）。
+  CSV 与图已用空载数据覆盖。**结论只读相对排序，且必须在空载机器上测。**
 - **待 Kenneth 在 Kaggle 执行**：
 
   ```bash
@@ -145,6 +150,7 @@ PR 描述里**直接引用本文件对应小节**（例：`见 docs/HANDOFF.md#t
   跑完后请把结果贴回本节，并改 `analysis/export_tables.py` 的 Table 5 注释（目前写的是 "GPU pending"）。
 - **Kenneth 验证结果**：
 - **遗留问题**：CPU 数字与本机绑定（作者笔记本，无 GPU、未锁线程），**只能读相对排序**，不要写进论文当绝对性能。
+  另外本次踩到一个坑：**测量时必须让机器空载**（并行下载/跑 LIME 会让均值虚高 40%–100%），我已按空载重测覆盖。
 
 ---
 
