@@ -14,6 +14,47 @@ PR 描述里**直接引用本文件对应小节**（例：`见 docs/HANDOFF.md#t
 
 ---
 
+## 0. 交付总览（先看这一节）
+
+| 入口 | 在哪 | 说明 |
+|---|---|---|
+| **离线看板（网页）** | <https://jellyfishhamburger.github.io/am-defect-tl/> | 66 个 run 的可交互结果页，单文件、零外链，断网也能开 |
+| 看板源文件 / 生成脚本 | `docs/index.html` · `tools/build_dashboard.py` | 生成物不要手改；改模板后重跑脚本 |
+| **现场 demo（本机）** | `analysis/demo_app.py` · `start-demo.bat` | 双击后浏览器打开 127.0.0.1:7860；`--share` 生成的 gradio.live 链接是临时的，进程一停即失效 |
+| 报告图（5 张）+ 索引 | `results/figures/fig_*.png` · `INDEX.md` | 索引里有英文 caption，可直接抄进报告 |
+| 报告表（5 张 × 2 格式） | `reports/tables/table{1..5}_*.md` / `.tex` | Markdown + LaTeX（booktabs） |
+| 效率数据 | `results/efficiency.csv`（11 行）· `fig_efficiency.png` | GPU 列待补（见 T3） |
+| 复核脚本 | `tools/eval_test_split.py` | 用保存的 checkpoint 重跑 D1 测试集 54 张 |
+
+### 看板能看什么
+
+`01 排名`（66 行，可筛选/排序，含 ΔAcc）· `02 模型 × 数据集`（热力图）· `03 优化器消融`（三种优化器的最大差值）·
+`04 效率`（训练时长 × 准确率）· `05 复现差距`（我们 vs 论文）· `06 单 run 详情`（混淆矩阵 + 指标 + 曲线）。
+点表格任意一行 → 展开该 run 的详情。
+
+### demo 是什么
+
+**不是"产品准确率演示"**，而是三件事：① 权重真的能载入并推理；② Grad-CAM 指出模型看哪里（报告 Discussion 的证据）；
+③ 同一张图不同 checkpoint 会分歧（呼应 66 个 run 的对比）。
+
+边界：只有 10 个 checkpoint 能推理（5 个 D1 + 5 个 D2，均 Adam）；**D2 的在 128px 增强图上训练，对 224 原图明显更差，
+界面上已用 ⚠ 标注，演示用 D1**；模型只在 D1 的实验条件下训练过，换场景即分布外；单张判断不代表整体（n=54）；
+界面示例是从测试集挑的代表样本，不是随机抽样。
+
+### 待 Kenneth 处理
+
+1. **review + merge PR #8**（CI 已过，与 main 无冲突）；
+2. **补 T3 的 GPU 时延**（脚本见 T3 小节，约 10 分钟），写回 `results/efficiency.csv` 后重跑 `python -m analysis.export_tables`；
+3. **合并后更新 `AGENTS.md` §8**（还写着三个模块未实现、`figures: 14`）；
+4. （建议）**核对 VGG16 的 checkpoint**：复跑 D1 测试集为 52/54，而 `metrics.json` 写 1.000（错的是 IMG_9081、IMG_9082）。
+
+### 原始资料
+
+论文 doi:10.1016/j.eswa.2024.124293（arXiv:2310.08645）· 作者代码 <https://github.com/mahsan2/AM3d> ·
+数据 <https://github.com/mahsan2/AMdataset> · Kaggle 副本 <https://www.kaggle.com/datasets/kennethdeng/am-defect-v1>
+
+---
+
 ## 总表（一眼看进度）
 
 | 任务 | 产物 | 本地自验 | 待 Kenneth 在 Kaggle 执行 | 状态 |
