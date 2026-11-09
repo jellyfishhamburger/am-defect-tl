@@ -48,7 +48,7 @@ def compute_metrics(y_true, y_prob, threshold: float = 0.5) -> dict:
     if not np.isfinite(ap):
         ap = 0.0
 
-    return {
+    result = {
         "accuracy": float(accuracy_score(y_true, y_pred)),
         "precision": float(precision),
         "recall": float(recall),
@@ -60,6 +60,8 @@ def compute_metrics(y_true, y_prob, threshold: float = 0.5) -> dict:
         "sensitivity": float(recall),
         "specificity": float(specificity),
     }
+    # 浮点误差可能让值略微越过 1.0（如 1.0000000000000002），统一裁剪到 [0, 1]
+    return {k: max(0.0, min(1.0, v)) if isinstance(v, float) else v for k, v in result.items()}
 
 
 def confusion_matrix_2x2(y_true, y_prob, threshold: float = 0.5) -> list[list[int]]:

@@ -14,11 +14,10 @@
 
 ## 自查清单（勾不完不许提交）
 
-- [ ] 我只改了自己 owner 目录里的文件（见 README 第 3 节）
-- [ ] **没有**提交 `data/`、模型权重（`*.pt`）、`__pycache__`
+- [ ] 我只改了本 PR 声明范围内的文件（目录/接口约定见 [AGENTS.md](../AGENTS.md)）
+- [ ] **没有**提交 `data/`、模型权重（除 `model.pt` 外的 `*.pt`）、`__pycache__`
 - [ ] 新跑的结果有 `metrics.json` + `confusion_matrices.json` + `train_log.csv`，`run_id` 与目录名一致
 - [ ] 我确认了 **positive = defect**，指标没有翻转
-- [ ] 我更新了 [CONTRIBUTIONS.md](../CONTRIBUTIONS.md) 的模块→作者→PR 表
 - [ ] 若引入了新的第三方库/代码片段，已在 [NOTICE.md](../NOTICE.md) 登记
 - [ ] `python -m unittest discover -s tests` 通过（或说明为何 skip）
 

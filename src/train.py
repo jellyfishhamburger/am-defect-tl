@@ -241,6 +241,7 @@ def main() -> None:
     ap.add_argument("--out", type=Path, default=Path("results"))
     ap.add_argument("--optimizer", default=None)
     ap.add_argument("--dataset", default=None)
+    ap.add_argument("--model", default=None, help="覆盖 config 里的 model（如 vgg16）")
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--force", action="store_true")
@@ -252,7 +253,8 @@ def main() -> None:
     cfg = load_config(args.config)
     if args.save_weights:
         cfg["save_weights"] = True
-    for key, val in (("optimizer", args.optimizer), ("dataset", args.dataset), ("seed", args.seed)):
+    for key, val in (("optimizer", args.optimizer), ("dataset", args.dataset),
+                     ("model", args.model), ("seed", args.seed)):
         if val is not None:
             cfg[key] = val
     run(cfg, args.data_root, args.splits_dir, args.out, smoke=args.smoke, force=args.force,

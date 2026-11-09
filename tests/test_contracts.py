@@ -127,8 +127,9 @@ class TestRunArtifacts(unittest.TestCase):
                     for name in METRIC_NAMES:
                         value = data["metrics"][split].get(name)
                         self.assertIsNotNone(value, f"{split}.{name} 缺失")
-                        self.assertGreaterEqual(value, 0.0, f"{split}.{name} 越界")
-                        self.assertLessEqual(value, 1.0, f"{split}.{name} 越界")
+                        # 允许 1e-6 的浮点误差（历史结果里有 1.0000000000000002）
+                        self.assertGreaterEqual(value, -1e-6, f"{split}.{name} 越界")
+                        self.assertLessEqual(value, 1.0 + 1e-6, f"{split}.{name} 越界")
 
     def test_confusion_shape(self):
         for path in self._run_files():
