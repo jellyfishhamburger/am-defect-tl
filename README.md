@@ -189,4 +189,5 @@ python tools/build_kernel.py --slug my-run --cmd "<上面的任意命令>"
 
 ## 9. 给 AI agent 的说明
 
-仓库的机器可读约定、规范命令、不变量与已知坑，见 **[AGENTS.md](AGENTS.md)**。
+- 仓库的机器可读约定、规范命令、不变量与已知坑：[**AGENTS.md**](AGENTS.md)
+- 协作开发者的任务卡与协同规则：[**docs/TASKS.md**](docs/TASKS.md)

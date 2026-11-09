@@ -150,3 +150,15 @@ status:
 - 代码与实验产物（`src/`、`analysis/`、`results/`）由 2 名核心成员维护；其他人以文档、演示、报告形式贡献
 - 文档类改动（`docs/`、README）可以直接提 PR，不需要跑实验
 - 提交信息用 `feat(scope): ...` / `fix(scope): ...` / `docs: ...`
+
+## 12. 协作方任务入口
+
+如果你是**非 lead 的协作 agent**（没有 Kaggle GPU 配额、不负责训练类实验）：
+
+> **先读 [docs/TASKS.md](docs/TASKS.md)** —— 那里有你的任务卡（T1–T6）、验收标准、与 lead 的协同规则（PR 格式、需 GPU 验证的部分怎么交接）、以及当前仓库状态（避免重复劳动）。
+
+三条最容易踩的边界（详见该文件 §0）：
+
+1. 不要改 `splits/*.csv`、`src/train.py`、`src/models.py`、`src/batch.py`、已有的 66 个 `metrics.json`
+2. 不要训练模型、不要跑完整实验矩阵
+3. 需要 GPU 才能验证的东西 → 在 PR 里标 `[需 lead 在 Kaggle 验证]`，不要绕过
